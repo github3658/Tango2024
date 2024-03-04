@@ -11,9 +11,6 @@ import com.ctre.phoenix6.hardware.ParentDevice;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.generated.TunerConstants;
@@ -54,7 +51,7 @@ public class RobotContainer {
   	private void setDefaultSubsystemCommands() {
 		// These commands contain isolated subsystem behavior
 		s_Swerve.setDefaultCommand(new SwerveTeleop(s_Swerve,	 xb_Driver));
-		s_Intake.setDefaultCommand(new IntakeTeleop(s_Intake,	 xb_Operator));
+		//s_Intake.setDefaultCommand(new IntakeTeleop(s_Intake,	 xb_Operator));
 		s_Shooter.setDefaultCommand(new ShooterTeleop(s_Shooter, xb_Operator));
 		s_Climber.setDefaultCommand(new ClimberTeleop(s_Climber, xb_Driver));
 
@@ -62,7 +59,7 @@ public class RobotContainer {
   	}
 
 	private void createNamedCommands() {
-		NamedCommands.registerCommand("MetalCrusher",new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, "metalcrusher.chrp", xb_Operator));
+		NamedCommands.registerCommand("MetalCrusher",new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "metalcrusher.chrp", xb_Operator));
 		NamedCommands.registerCommand("ShootSpeaker",new ShootGeneric(s_Shooter, s_Intake, 1.0));
 	}
 
@@ -113,27 +110,27 @@ public class RobotContainer {
 		if (!b_PlaySong && xb_Driver.getRawButton(XboxController.Button.kStart.value)) {
 			if (xb_Driver.getPOV() == 0) {
 				b_PlaySong = true;
-				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, "bohemianrhapsody.chrp", xb_Driver).schedule();
+				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "bohemianrhapsody.chrp", xb_Driver).schedule();
 			}
 			else if (xb_Driver.getPOV() == 45) {
 				b_PlaySong = true;
-				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, "creep.chrp", xb_Driver).schedule();
+				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "creep.chrp", xb_Driver).schedule();
 			}
 			else if (xb_Driver.getPOV() == 90) {
 				b_PlaySong = true;
-				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, "rickroll.chrp", xb_Driver).schedule();
+				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "rickroll.chrp", xb_Driver).schedule();
 			}
 			else if (xb_Driver.getPOV() == 135) {
 				b_PlaySong = true;
-				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, "snitch.chrp", xb_Driver).schedule();
+				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "snitch.chrp", xb_Driver).schedule();
 			}
 			else if (xb_Driver.getPOV() == 180) {
 				b_PlaySong = true;
-				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, "starwars.chrp", xb_Driver).schedule();
+				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "starwars.chrp", xb_Driver).schedule();
 			}
 			else if (xb_Driver.getPOV() == 270) {
 				b_PlaySong = true;
-				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, "metalcrusher.chrp", xb_Driver).schedule();
+				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "metalcrusher.chrp", xb_Driver).schedule();
 			}
 		}
 		else if (xb_Driver.getRawButton(XboxController.Button.kStart.value) == false) {

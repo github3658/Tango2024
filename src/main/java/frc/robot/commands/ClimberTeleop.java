@@ -37,6 +37,10 @@ public class ClimberTeleop extends Command {
         else {
             s_Climber.stopClimb();
         }
+        if(xb_Driver.getRawButton(XboxController.Button.kX.value))
+        {
+            s_Climber.setMotorSpeed(1.0);
+        }
     }
 
     @Override

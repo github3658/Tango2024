@@ -7,6 +7,9 @@
 package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.Intake.IntakeState;
+import frc.robot.subsystems.Intake.PivotTarget;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -16,8 +19,8 @@ public class Shooter extends SubsystemBase {
 	/* CONSTANTS (prefix: c) */
 	private final int c_ShootLeftID   = 14;
 	private final int c_ShootRightID  = 15;
-	private final int c_ShootPivotID  = 16;
-	private final int c_ShootExtendID = 13;
+	private final int c_ShootPivotID  = 16; // Encoder range 0 - -36.5
+	private final int c_ShootExtendID = 13; // Encoder range 0 - 20
 
 	/* MOTORS (prefix: m) */
 	private final TalonFX m_ShootLeft;
@@ -27,6 +30,8 @@ public class Shooter extends SubsystemBase {
 
 	/* OTHER VARIABLES */
 	private double d_ShooterSpeed = 0.0;
+	private double d_ExtensionPosition = 0.0;
+	private double d_PivotPosition = 0.0;
 
 	public Shooter() {
 		m_ShootLeft = new TalonFX(c_ShootLeftID, "3658CANivore");
@@ -40,17 +45,28 @@ public class Shooter extends SubsystemBase {
 
 		m_ShootLeft.setNeutralMode(NeutralModeValue.Coast);
 		m_ShootLeft.setNeutralMode(NeutralModeValue.Coast);
-		m_ShootPivot.setNeutralMode(NeutralModeValue.Brake);
-		m_ShootExtend.setNeutralMode(NeutralModeValue.Brake);
+		m_ShootPivot.setNeutralMode(NeutralModeValue.Coast);
+		m_ShootExtend.setNeutralMode(NeutralModeValue.Coast);
 
 		m_ShootLeft.setInverted(true);
 		m_ShootRight.setInverted(false);
+
+		m_ShootPivot.setPosition(0);
 	}
 
 	@Override
 	public void periodic() {
 		m_ShootLeft.set(d_ShooterSpeed);
 		m_ShootRight.set(d_ShooterSpeed);
+		
+		// Extension Control
+        double d_CurrentExtension = m_ShootExtend.getPosition().getValueAsDouble();
+        m_ShootExtend.set(Math.max(Math.min(((d_ExtensionPosition - d_CurrentExtension) / 5 * 0.2),0.30),-0.30));
+
+		// Pivot Control
+        double d_CurrentPivot = m_ShootPivot.getPosition().getValueAsDouble();
+        m_ShootPivot.set(Math.max(Math.min(((d_PivotPosition - d_CurrentPivot) / 5 * 0.2),0.30),-0.30));
+
 		outputTelemetry();
 	}
 
@@ -62,10 +78,38 @@ public class Shooter extends SubsystemBase {
 		SmartDashboard.putNumber("Shooter Speed", d_ShooterSpeed);
 		SmartDashboard.putNumber("Left Speed", m_ShootLeft.getVelocity().getValueAsDouble());
 		SmartDashboard.putNumber("Right Speed", m_ShootRight.getVelocity().getValueAsDouble());
+		SmartDashboard.putNumber("Shooter Extension",m_ShootExtend.getPosition().getValueAsDouble());
+		SmartDashboard.putNumber("Shooter Pivot",m_ShootPivot.getPosition().getValueAsDouble());
 	}
 
 	public void setSpeed(double speed) {
 		d_ShooterSpeed = speed;
+	}
+
+	public void setExtension(double position, boolean relative) {
+		if (relative) {
+			d_ExtensionPosition = Math.min(Math.max(d_ExtensionPosition+position,0),23);
+		}
+		else {
+			d_ExtensionPosition = Math.min(Math.max(position,0),23);
+		}
+	}
+
+	public void setExtension(double position) {
+		setExtension(position, false);
+	}
+
+	public void setPivot(double position, boolean relative) {
+		if (relative) {
+			d_PivotPosition = Math.min(Math.max(d_PivotPosition+position,-36.5),0);
+		}
+		else {
+			d_PivotPosition = Math.min(Math.max(position,-36.5),0);
+		}
+	}
+
+	public void setPivot(double position) {
+		setPivot(position, false);
 	}
 
 	public ParentDevice[] requestOrchDevices() {

@@ -59,6 +59,11 @@ public class Climber extends SubsystemBase {
         }
     }
 
+    public void setMotorSpeed(double speed) {
+        d_ClimbSpeed = speed;
+    }
+
+
     public void release() {
         if (getExtend() > -687.00) {
             d_ClimbSpeed = c_SetReleaseSpeed;
@@ -91,3 +96,4 @@ public class Climber extends SubsystemBase {
         return pd;
     }
 }
+  

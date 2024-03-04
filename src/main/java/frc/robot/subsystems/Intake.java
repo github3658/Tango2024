@@ -123,22 +123,23 @@ public class Intake extends SubsystemBase {
 
     public void outputTelemetry() {
         //SmartDashboard.putNumber("Intake Speed", intakeStateToSpeed(e_IntakeState));
-        SmartDashboard.putNumber("Pivot Encoder", getPivotAngle());
+        SmartDashboard.putNumber("Pivot Relative Encoder",m_IntakePivot.getPosition().getValueAsDouble());        //SmartDashboard.putNumber("Pivot Encoder", getPivotAngle());
         SmartDashboard.putNumber("Pivot Target Angle", pivotTargetToAngle(e_PivotTarget));
         SmartDashboard.putBoolean("Has Note?", intakeHasNote());
         SmartDashboard.putBoolean("Pivot in place?", isPivotAtTarget());
         SmartDashboard.putNumber("Pivot Stator Current", getPivotCurrent());
         SmartDashboard.putString("Intake State", e_IntakeState.name());
         //SmartDashboard.putNumber("Pivot Speed", d_IntakePivotSpeed);
+        
     }
 
     public double pivotTargetToAngle(PivotTarget target) {
         switch (target) {
             case Ground:
-                return -62.0;
+                return -35.0;//return -62.0;
             case Source:
             case Amp:
-                return -28.0;
+                return -17.0;//return -28.0;
             case Stow:
             default:
                 return 0.0;
@@ -169,7 +170,8 @@ public class Intake extends SubsystemBase {
     }
 
     public double getPivotAngle() {
-        return (n_Encoder.get()*100)-76.77-d_PivotOffset;
+        //return (n_Encoder.get()*100)-76.77-d_PivotOffset;
+        return m_IntakePivot.getPosition().getValueAsDouble();
     }
 
     public boolean intakeHasNote() {
