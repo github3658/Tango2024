@@ -22,7 +22,9 @@ public class Climber extends SubsystemBase {
     private double d_ClimbSpeed = 0.0;
     private double d_EncoderOffset = 0.0;
 
-    public Climber() {
+    private LED s_LED;
+    public Climber(LED led) {
+        s_LED = led;
         m_Climb = new TalonFX(c_ClimbID, "3658CANivore");
         m_Climb.setNeutralMode(NeutralModeValue.Brake);
         m_Climb.setInverted(false);

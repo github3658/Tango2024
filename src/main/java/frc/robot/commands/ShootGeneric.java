@@ -5,18 +5,23 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.LED.Color;
+import frc.robot.subsystems.LED.Pattern;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.LED;
 
 public class ShootGeneric extends Command {
     private final Shooter s_Shooter;
     private final Intake s_Intake;
+    private final LED s_LED;
 
     private int i_ShooterWarmupDelay;
     private int i_ShutdownDelay;
     private boolean b_SeenNote;
     private double d_ShooterSpeed = 0.0;
 
-    public ShootGeneric(Shooter shooter, Intake intake, double speed) {
+    public ShootGeneric(Shooter shooter, Intake intake, double speed, LED led) {
+        s_LED = led;
         s_Shooter = shooter;
         s_Intake = intake;
         d_ShooterSpeed = speed;
@@ -28,6 +33,8 @@ public class ShootGeneric extends Command {
         i_ShooterWarmupDelay = 50;
         i_ShutdownDelay = 50;
         b_SeenNote = false;
+        s_LED.SetColor(Color.Blue);
+        s_LED.SetPattern(Pattern.Strobe);
     }
 
     @Override
@@ -51,6 +58,8 @@ public class ShootGeneric extends Command {
         System.out.println("Finished");
         s_Shooter.setSpeed(0.0);
         s_Intake.setStateToStow();
+        s_LED.SetColor(Color.Yellow);
+        s_LED.SetPattern(Pattern.Solid);
     }
 
     @Override

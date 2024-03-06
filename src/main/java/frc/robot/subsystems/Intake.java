@@ -13,6 +13,8 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.DigitalInput;
+import frc.robot.subsystems.LED;
+import frc.robot.subsystems.LED.Color;
 
 public class Intake extends SubsystemBase {
     /* CONSTANTS (prefix: c) */
@@ -53,7 +55,9 @@ public class Intake extends SubsystemBase {
     private IntakeState e_IntakeState = IntakeState.None;
     private IntakeState e_IntakeStateGOAL = IntakeState.None;
 
-    public Intake() {
+    private LED s_LED;
+    public Intake(LED led) {
+        s_LED = led;
         m_IntakeNote = new TalonFX(c_IntakeNoteID, "3658CANivore");
         m_IntakeNote.getConfigurator().apply(new TalonFXConfiguration());
         m_IntakeNote.setNeutralMode(NeutralModeValue.Coast);
@@ -64,10 +68,19 @@ public class Intake extends SubsystemBase {
 
         n_Encoder = new DutyCycleEncoder(8);
         n_NoteDetect = new DigitalInput(9);
+        s_LED.SetColor(Color.Yellow);
     }
 
     @Override
     public void periodic() {
+        // TEMP
+        if (intakeHasNote()) {
+            s_LED.SetColor(Color.Green);
+        }
+        else {
+            s_LED.SetColor(Color.Yellow);
+        }
+
         // Pivot Control
         double d_PivotAngle = pivotTargetToAngle(e_PivotTarget);
         
@@ -102,13 +115,16 @@ public class Intake extends SubsystemBase {
         // Stow on detect ground note
         if (e_PivotTarget == PivotTarget.Ground && intakeHasNote()) {
             i_IntakeSwitchDelay = 12;
+            s_LED.SetColor(Color.Green);
             setStateToStow();
         }
         else if (e_IntakeState == IntakeState.Intake && intakeHasNote()) {
             // i_IntakeSwitchDelay = 25;
+            s_LED.SetColor(Color.Green);
             setIntake(IntakeState.None);
         }
         else if (e_IntakeState == IntakeState.FastEject && intakeHasNote()) {
+            s_LED.SetColor(Color.Yellow);
             i_IntakeSwitchDelay = 25;
             e_IntakeStateGOAL = IntakeState.None;
         }

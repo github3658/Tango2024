@@ -19,19 +19,19 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
-
+import frc.robot.subsystems.LED.Color;
+import frc.robot.subsystems.LED.Pattern;
 import frc.robot.subsystems.*;
 import frc.robot.commands.*;
 
 public class RobotContainer {
 
-	/* CONSTANTS (prefix: c) */
-	
 	/* SUBSYSTEM DEFINITIONS (prefix: s) */
 	private final Swerve   s_Swerve   = TunerConstants.DriveTrain;
-	private final Shooter  s_Shooter  = new Shooter();
-	private final Intake   s_Intake   = new Intake();
-	private final Climber  s_Climber  = new Climber();
+	private final LED 	   s_LED      = new LED();
+	private final Shooter  s_Shooter  = new Shooter(s_LED);
+	private final Intake   s_Intake   = new Intake(s_LED);
+	private final Climber  s_Climber  = new Climber(s_LED);
 
 	/* INPUT DEVICES (prefix: xb) */
 	private final GenericHID xb_Driver = new GenericHID(0);
@@ -54,13 +54,14 @@ public class RobotContainer {
 		//s_Intake.setDefaultCommand(new IntakeTeleop(s_Intake,	 xb_Operator));
 		s_Shooter.setDefaultCommand(new ShooterTeleop(s_Shooter, xb_Operator));
 		s_Climber.setDefaultCommand(new ClimberTeleop(s_Climber, xb_Driver));
+		s_LED.SetColor(Color.White);
 
 		// More complex behaviors are handled in TeleopPeriodic.
   	}
 
 	private void createNamedCommands() {
 		NamedCommands.registerCommand("MetalCrusher",new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "metalcrusher.chrp", xb_Operator));
-		NamedCommands.registerCommand("ShootSpeaker",new ShootGeneric(s_Shooter, s_Intake, 1.0));
+		NamedCommands.registerCommand("ShootSpeaker",new ShootGeneric(s_Shooter, s_Intake, 1.0, s_LED));
 	}
 
   	public RobotContainer() {
@@ -81,6 +82,9 @@ public class RobotContainer {
 
 		createNamedCommands();
 
+		s_LED.SetColor(Color.White);
+		s_LED.SetPattern(Pattern.Solid);
+
 		m_AutoChooser = AutoBuilder.buildAutoChooser();
 		SmartDashboard.putData(m_AutoChooser);
   	}
@@ -96,7 +100,7 @@ public class RobotContainer {
 
 		// Command auto = new PathPlannerAuto("!TEST AUTO");
 		// auto.schedule();
-		SequentialCommandGroup auto = new SequentialCommandGroup(new ShootGeneric(s_Shooter, s_Intake, 0.6), new DriveForwardWorkaround(s_Swerve));
+		SequentialCommandGroup auto = new SequentialCommandGroup(new ShootGeneric(s_Shooter, s_Intake, 0.6, s_LED), new DriveForwardWorkaround(s_Swerve));
 		auto.schedule();
 	}
 
@@ -140,7 +144,7 @@ public class RobotContainer {
 		// Shoot for the Speaker
 		if (xb_Operator.getRawAxis(ctrl_ShooterMain) > 0.9 && !b_Shot) {
 			b_Shot = true;
-			new ShootGeneric(s_Shooter, s_Intake, 0.60).schedule();
+			new ShootGeneric(s_Shooter, s_Intake, 0.60, s_LED).schedule();
 		}
 		else if (xb_Operator.getRawAxis(ctrl_ShooterMain) < 0.1 && b_Shot) {
 			b_Shot = false;
@@ -149,10 +153,14 @@ public class RobotContainer {
 		// Shoot for the Amp
 		if (xb_Operator.getRawAxis(ctrl_ShooterAmp) > 0.9 && !b_Shot) {
 			b_Shot = true;
-			new ShootGeneric(s_Shooter, s_Intake, 0.13).schedule();
+			new ShootGeneric(s_Shooter, s_Intake, 0.13, s_LED).schedule();
 		}
 		else if (xb_Operator.getRawAxis(ctrl_ShooterAmp) < 0.1 && b_Shot) {
 			b_Shot = false;
 		}
+	}
+
+	public void disabledInit() {
+		s_LED.SetColor(Color.White);
 	}
 }

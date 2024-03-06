@@ -33,7 +33,9 @@ public class Shooter extends SubsystemBase {
 	private double d_ExtensionPosition = 0.0;
 	private double d_PivotPosition = 0.0;
 
-	public Shooter() {
+	private LED s_LED;
+	public Shooter(LED led) {
+		s_LED = led;
 		m_ShootLeft = new TalonFX(c_ShootLeftID, "3658CANivore");
 		m_ShootRight = new TalonFX(c_ShootRightID, "3658CANivore");
 		m_ShootPivot = new TalonFX(c_ShootPivotID, "3658CANivore");
