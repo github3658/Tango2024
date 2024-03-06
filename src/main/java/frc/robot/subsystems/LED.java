@@ -37,6 +37,7 @@ public class LED extends SubsystemBase {
     private final int[] color_Orange = {243, 135, 13};
     private final int[] color_Red = {255, 0, 0};
     private final int[] color_White = {255,255,255};
+    private final int[] color_Magenta = {217,1,122}
 
     /* CANDLE AND ANIMATIONS */
     public final CANdle m_CANdle = new CANdle(c_CANDleID, "3658CANivore");
