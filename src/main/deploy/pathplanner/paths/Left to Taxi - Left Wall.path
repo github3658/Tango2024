@@ -3,32 +3,38 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.1330149315039246,
-        "y": 5.580559282764361
+        "x": 0.7980624411953052,
+        "y": 6.431579060341219
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.133014931503925,
-        "y": 5.580559282764361
+        "x": 3.4718649718989583,
+        "y": 5.737835701023514
       },
       "isLocked": false,
-      "linkedName": "Speaker Center"
+      "linkedName": "Speaker Left"
     },
     {
       "anchor": {
-        "x": 2.1879141940102063,
-        "y": 6.99655944766435
+        "x": 5.362491440546387,
+        "y": 7.7246689019317225
       },
       "prevControl": {
-        "x": 1.1879141940102063,
-        "y": 6.99655944766435
+        "x": 4.362491440546387,
+        "y": 7.7246689019317225
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Note 1"
+      "linkedName": "Taxi Left Wall"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0,
+      "rotationDegrees": 60.572543596810284,
+      "rotateFast": false
+    }
+  ],
   "constraintZones": [],
   "eventMarkers": [],
   "globalConstraints": {
@@ -45,7 +51,7 @@
   "reversed": false,
   "folder": null,
   "previewStartingState": {
-    "rotation": 0,
+    "rotation": 60.12400730831056,
     "velocity": 0
   },
   "useDefaultConstraints": true

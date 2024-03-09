@@ -4,14 +4,12 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.Utils;
-import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
@@ -19,18 +17,13 @@ import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
 import java.util.function.Supplier;
-import java.util.function.Consumer;
-import edu.wpi.first.wpilibj.DriverStation;
 
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements subsystem
@@ -41,6 +34,7 @@ public class Swerve extends SwerveDrivetrain implements Subsystem {
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
     private SwerveRequest.ApplyChassisSpeeds m_AutoDriveRequest = new SwerveRequest.ApplyChassisSpeeds();
+    private boolean b_FieldOriented = true;
 
     public Swerve(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency, SwerveModuleConstants... modules) {    
         super(driveTrainConstants, OdometryUpdateFrequency, modules);
@@ -134,6 +128,14 @@ public class Swerve extends SwerveDrivetrain implements Subsystem {
         m_odometry.resetPosition(Rotation2d.fromDegrees(getPigeon2().getYaw().getValue()), getModulePositions(), new Pose2d(getPose().getTranslation(), new Rotation2d()));
     }
 
+    public void toggleFieldOrient() {
+        b_FieldOriented = !b_FieldOriented;
+    }
+
+    public boolean getFieldOrient() {
+        return b_FieldOriented;
+    }
+
     public ParentDevice[] requestOrchDevices() {
         ParentDevice[] pd = {
             this.getModule(0).getDriveMotor(),this.getModule(0).getSteerMotor(),this.getModule(0).getCANcoder(),
@@ -143,5 +145,16 @@ public class Swerve extends SwerveDrivetrain implements Subsystem {
             this.getPigeon2()
         };
         return pd;
+    }
+
+    public double pollOrchOutput() {
+        return Math.abs(this.getModule(0).getDriveMotor().get())
+        + Math.abs(this.getModule(0).getSteerMotor().get())
+        + Math.abs(this.getModule(1).getDriveMotor().get())
+        + Math.abs(this.getModule(1).getSteerMotor().get())
+        + Math.abs(this.getModule(2).getDriveMotor().get())
+        + Math.abs(this.getModule(2).getSteerMotor().get())
+        + Math.abs(this.getModule(3).getDriveMotor().get())
+        + Math.abs(this.getModule(3).getSteerMotor().get());
     }
 }

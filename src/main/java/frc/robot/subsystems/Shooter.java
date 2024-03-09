@@ -7,8 +7,8 @@
 package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.Intake.IntakeState;
-import frc.robot.subsystems.Intake.PivotTarget;
+//import frc.robot.subsystems.Intake.IntakeState;
+//import frc.robot.subsystems.Intake.PivotTarget;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.ParentDevice;
@@ -33,9 +33,9 @@ public class Shooter extends SubsystemBase {
 	private double d_ExtensionPosition = 0.0;
 	private double d_PivotPosition = 0.0;
 
-	private LED s_LED;
+	//private LED s_LED;
 	public Shooter(LED led) {
-		s_LED = led;
+		//s_LED = led;
 		m_ShootLeft = new TalonFX(c_ShootLeftID, "3658CANivore");
 		m_ShootRight = new TalonFX(c_ShootRightID, "3658CANivore");
 		m_ShootPivot = new TalonFX(c_ShootPivotID, "3658CANivore");
@@ -47,8 +47,8 @@ public class Shooter extends SubsystemBase {
 
 		m_ShootLeft.setNeutralMode(NeutralModeValue.Coast);
 		m_ShootLeft.setNeutralMode(NeutralModeValue.Coast);
-		m_ShootPivot.setNeutralMode(NeutralModeValue.Coast);
-		m_ShootExtend.setNeutralMode(NeutralModeValue.Coast);
+		m_ShootPivot.setNeutralMode(NeutralModeValue.Brake);
+		m_ShootExtend.setNeutralMode(NeutralModeValue.Brake);
 
 		m_ShootLeft.setInverted(true);
 		m_ShootRight.setInverted(false);
@@ -77,11 +77,8 @@ public class Shooter extends SubsystemBase {
 	}
 
 	public void outputTelemetry() {
-		SmartDashboard.putNumber("Shooter Speed", d_ShooterSpeed);
-		SmartDashboard.putNumber("Left Speed", m_ShootLeft.getVelocity().getValueAsDouble());
-		SmartDashboard.putNumber("Right Speed", m_ShootRight.getVelocity().getValueAsDouble());
-		SmartDashboard.putNumber("Shooter Extension",m_ShootExtend.getPosition().getValueAsDouble());
-		SmartDashboard.putNumber("Shooter Pivot",m_ShootPivot.getPosition().getValueAsDouble());
+		SmartDashboard.putNumber("Shooter - Extension",m_ShootExtend.getPosition().getValueAsDouble());
+		SmartDashboard.putNumber("Shooter - Pivot",m_ShootPivot.getPosition().getValueAsDouble());
 	}
 
 	public void setSpeed(double speed) {
@@ -115,7 +112,11 @@ public class Shooter extends SubsystemBase {
 	}
 
 	public ParentDevice[] requestOrchDevices() {
-		ParentDevice[] pd = {m_ShootLeft, m_ShootRight};
+		ParentDevice[] pd = {m_ShootLeft, m_ShootRight, m_ShootPivot, m_ShootExtend};
 		return pd;
 	}
+
+	public double pollOrchOutput() {
+        return Math.abs(m_ShootLeft.get()) + Math.abs(m_ShootRight.get()) + Math.abs(m_ShootPivot.get()) + Math.abs(m_ShootExtend.get());
+    }
 }

@@ -22,9 +22,9 @@ public class Climber extends SubsystemBase {
     private double d_ClimbSpeed = 0.0;
     private double d_EncoderOffset = 0.0;
 
-    private LED s_LED;
+    //private LED s_LED;
     public Climber(LED led) {
-        s_LED = led;
+        //s_LED = led;
         m_Climb = new TalonFX(c_ClimbID, "3658CANivore");
         m_Climb.setNeutralMode(NeutralModeValue.Brake);
         m_Climb.setInverted(false);
@@ -45,7 +45,7 @@ public class Climber extends SubsystemBase {
     }
 
     public void outputTelemetry() {
-        SmartDashboard.putNumber("Climber Extend", getExtend());
+        SmartDashboard.putNumber("Climber - Extend", getExtend());
     }
 
     public void setNeutralMode(NeutralModeValue neutral) {
@@ -83,19 +83,13 @@ public class Climber extends SubsystemBase {
         return m_Climb.getPosition().getValueAsDouble() - d_EncoderOffset;
     }
 
-    // public void tiltLeft() {
-    //     d_ClimbLeftSpeed = c_SetReleaseSpeed;
-    //     d_ClimbRightSpeed = 0.0;
-    // }
-
-    // public void tiltRight() {
-    //     d_ClimbLeftSpeed = 0.0;
-    //     d_ClimbRightSpeed = c_SetReleaseSpeed;
-    // }
-
     public ParentDevice[] requestOrchDevices() {
         ParentDevice[] pd = {m_Climb};
         return pd;
+    }
+
+    public double pollOrchOutput() {
+        return Math.abs(m_Climb.get());
     }
 }
   

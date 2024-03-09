@@ -8,18 +8,18 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.DigitalInput;
-import frc.robot.subsystems.LED;
 import frc.robot.subsystems.LED.Color;
 
 public class Intake extends SubsystemBase {
     /* CONSTANTS (prefix: c) */
     private final int c_IntakeNoteID = 10;
     private final int c_IntakePivotID = 9;
+    private final int c_CANCoderID = 18;
 
     /* ENUMS */
     public enum PivotTarget {
@@ -43,13 +43,12 @@ public class Intake extends SubsystemBase {
     private final TalonFX m_IntakePivot;
 
     /* SENSORS (prefix: n) */
-    private final DutyCycleEncoder n_Encoder;
+    private final CANcoder n_Encoder;
     private final DigitalInput n_NoteDetect;
 
     /* OTHER VARIABLES */
     private double d_IntakeSpeed = 0.0;
     private double d_IntakePivotSpeed = 0.0;
-    private double d_PivotOffset = 0.0;
     private int i_IntakeSwitchDelay = 0;
     private PivotTarget e_PivotTarget = PivotTarget.None;
     private IntakeState e_IntakeState = IntakeState.None;
@@ -66,21 +65,13 @@ public class Intake extends SubsystemBase {
         m_IntakePivot.getConfigurator().apply(new TalonFXConfiguration());
         m_IntakePivot.setNeutralMode(NeutralModeValue.Brake);
 
-        n_Encoder = new DutyCycleEncoder(8);
+        n_Encoder = new CANcoder(c_CANCoderID, "3658CANivore");
         n_NoteDetect = new DigitalInput(9);
         s_LED.SetColor(Color.Yellow);
     }
 
     @Override
     public void periodic() {
-        // TEMP
-        if (intakeHasNote()) {
-            s_LED.SetColor(Color.Green);
-        }
-        else {
-            s_LED.SetColor(Color.Yellow);
-        }
-
         // Pivot Control
         double d_PivotAngle = pivotTargetToAngle(e_PivotTarget);
         
@@ -138,17 +129,12 @@ public class Intake extends SubsystemBase {
     }
 
     public void outputTelemetry() {
-        //SmartDashboard.putNumber("Intake Speed", intakeStateToSpeed(e_IntakeState));
-        SmartDashboard.putNumber("Pivot Relative Encoder",m_IntakePivot.getPosition().getValueAsDouble());        //SmartDashboard.putNumber("Pivot Encoder", getPivotAngle());
-        SmartDashboard.putNumber("Pivot Target Angle", pivotTargetToAngle(e_PivotTarget));
-        SmartDashboard.putBoolean("Has Note?", intakeHasNote());
-        SmartDashboard.putBoolean("Pivot in place?", isPivotAtTarget());
-        SmartDashboard.putNumber("Pivot Stator Current", getPivotCurrent());
-        SmartDashboard.putString("Intake State", e_IntakeState.name());
-        //SmartDashboard.putNumber("Pivot Speed", d_IntakePivotSpeed);
-        
+        SmartDashboard.putNumber("Intake - Pivot Angle",getPivotAngle()); 
+        SmartDashboard.putBoolean("Intake - Pivot in place?", isPivotAtTarget());
+        SmartDashboard.putString("Intake - State", e_IntakeState.name());
     }
 
+    // TODO: Redefine pivot targets for CANCoder
     public double pivotTargetToAngle(PivotTarget target) {
         switch (target) {
             case Ground:
@@ -185,21 +171,14 @@ public class Intake extends SubsystemBase {
         return e_PivotTarget;
     }
 
+    // TODO: test intake CANCoder
     public double getPivotAngle() {
         //return (n_Encoder.get()*100)-76.77-d_PivotOffset;
-        return m_IntakePivot.getPosition().getValueAsDouble();
+        return n_Encoder.getAbsolutePosition().getValueAsDouble();
     }
 
     public boolean intakeHasNote() {
         return !n_NoteDetect.get();
-    }
-
-    public void resetOffset() {
-        d_PivotOffset = getPivotAngle();
-    }
-
-    public double getPivotCurrent() {
-        return m_IntakePivot.getStatorCurrent().getValueAsDouble();
     }
 
     // Pivot functions
@@ -260,19 +239,16 @@ public class Intake extends SubsystemBase {
     }
 
     // Private functions
-    private void checkAutoTasks() {
-        // if (e_PivotTarget == PivotTarget.Ground && intakeHasNote() && isPivotAtTarget()) {
-        //     e_PivotTarget = PivotTarget.Stow;
-        //     e_IntakeState = IntakeState.None;
-        // }
-    }
-
     private boolean isPivotAtTarget() {
         return Math.abs(getPivotAngle() - pivotTargetToAngle(e_PivotTarget)) < 5;
     }
 
     public ParentDevice[] requestOrchDevices() {
-        ParentDevice[] pd = {m_IntakeNote, m_IntakePivot};
+        ParentDevice[] pd = {m_IntakeNote, m_IntakePivot, n_Encoder};
         return pd;
+    }
+
+    public double pollOrchOutput() {
+        return Math.abs(m_IntakeNote.get()) + Math.abs(m_IntakePivot.get());
     }
 }

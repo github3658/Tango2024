@@ -27,9 +27,10 @@ public class SwerveTeleop extends Command {
 
     private GenericHID xb_Driver;
 
-    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-    //.withDeadband(c_MaxSwerveSpeed * 0.1).withRotationalDeadband(c_MaxSwerveAngularRate * 0.1) // Add a 10% deadband
-    .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
+    private final SwerveRequest.FieldCentric drive_field = new SwerveRequest.FieldCentric()
+    .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+    private final SwerveRequest.RobotCentric drive_robot = new SwerveRequest.RobotCentric()
+    .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     public SwerveTeleop(Swerve subsystem, GenericHID port0) {
         s_Swerve = subsystem;
@@ -60,11 +61,20 @@ public class SwerveTeleop extends Command {
             d_SwerveRamp = Math.max(d_SwerveRamp-1/c_AccelTime,0);
         }
 
-        s_Swerve.setControl(drive.
-            withVelocityX(forward * d_SwerveRamp * c_MaxSwerveSpeed) // Drive forward with negative Y (forward)
-            .withVelocityY(strafe * d_SwerveRamp * c_MaxSwerveSpeed) // Drive left with negative X (left)
-            .withRotationalRate(rotate * d_SwerveRamp * c_MaxSwerveAngularRate) // Drive counterclockwise with negative X (left)
-        );
+        if (s_Swerve.getFieldOrient()) {
+            s_Swerve.setControl(drive_field.
+                withVelocityX(forward * d_SwerveRamp * c_MaxSwerveSpeed) // Drive forward with negative Y (forward)
+                .withVelocityY(strafe * d_SwerveRamp * c_MaxSwerveSpeed) // Drive left with negative X (left)
+                .withRotationalRate(rotate * d_SwerveRamp * c_MaxSwerveAngularRate) // Drive counterclockwise with negative X (left)
+            );
+        }
+        else {
+            s_Swerve.setControl(drive_robot.
+                withVelocityX(forward * d_SwerveRamp * c_MaxSwerveSpeed) // Drive forward with negative Y (forward)
+                .withVelocityY(strafe * d_SwerveRamp * c_MaxSwerveSpeed) // Drive left with negative X (left)
+                .withRotationalRate(rotate * d_SwerveRamp * c_MaxSwerveAngularRate) // Drive counterclockwise with negative X (left)
+            );
+        }
     }
 
     @Override

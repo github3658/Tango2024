@@ -15,7 +15,7 @@ public class IntakeTeleop extends Command {
 
     private GenericHID xb_Operator;
 
-    private final int ctrl_IntakeMain = XboxController.Button.kLeftBumper.value;
+    //private final int ctrl_IntakeMain = XboxController.Button.kLeftBumper.value;
     private final int ctrl_Intake = XboxController.Button.kA.value;
     private final int ctrl_Eject = XboxController.Button.kB.value;
     private final int ctrl_Stop = XboxController.Button.kY.value;
@@ -60,9 +60,9 @@ public class IntakeTeleop extends Command {
             }
         //}
 
-        if (xb_Operator.getRawButtonPressed(XboxController.Button.kStart.value)) {
-            s_Intake.resetOffset();
-        }
+        // if (xb_Operator.getRawButtonPressed(XboxController.Button.kStart.value)) {
+        //     s_Intake.resetOffset();
+        // }
     }
 
     @Override

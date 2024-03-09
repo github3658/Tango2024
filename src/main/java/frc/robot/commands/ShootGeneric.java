@@ -55,7 +55,6 @@ public class ShootGeneric extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        System.out.println("Finished");
         s_Shooter.setSpeed(0.0);
         s_Intake.setStateToStow();
         s_LED.SetColor(Color.Yellow);
@@ -64,7 +63,6 @@ public class ShootGeneric extends Command {
 
     @Override
     public boolean isFinished() {
-        System.out.println(i_ShutdownDelay);
         return i_ShutdownDelay < 0;
     }
 }

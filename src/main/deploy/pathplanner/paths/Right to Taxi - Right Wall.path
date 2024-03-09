@@ -12,20 +12,20 @@
         "y": 4.684732661057452
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Speaker Right"
     },
     {
       "anchor": {
-        "x": 2.572211799164207,
-        "y": 0.3818277403996678
+        "x": 5.397002794005587,
+        "y": 0.5597247558131483
       },
       "prevControl": {
-        "x": 1.572211799164207,
-        "y": 0.3818277403996678
+        "x": 4.397002794005587,
+        "y": 0.5597247558131483
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Taxi Right Wall"
     }
   ],
   "rotationTargets": [

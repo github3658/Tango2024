@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
+//import com.pathplanner.lib.commands.PathPlannerAuto;
 import frc.robot.subsystems.LED.Color;
 import frc.robot.subsystems.LED.Pattern;
 import frc.robot.subsystems.*;
@@ -51,7 +51,7 @@ public class RobotContainer {
   	private void setDefaultSubsystemCommands() {
 		// These commands contain isolated subsystem behavior
 		s_Swerve.setDefaultCommand(new SwerveTeleop(s_Swerve,	 xb_Driver));
-		//s_Intake.setDefaultCommand(new IntakeTeleop(s_Intake,	 xb_Operator));
+		s_Intake.setDefaultCommand(new IntakeTeleop(s_Intake,	 xb_Operator));
 		s_Shooter.setDefaultCommand(new ShooterTeleop(s_Shooter, xb_Operator));
 		s_Climber.setDefaultCommand(new ClimberTeleop(s_Climber, xb_Driver));
 		s_LED.SetColor(Color.White);
@@ -60,7 +60,7 @@ public class RobotContainer {
   	}
 
 	private void createNamedCommands() {
-		NamedCommands.registerCommand("MetalCrusher",new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "metalcrusher.chrp", xb_Operator));
+		NamedCommands.registerCommand("MetalCrusher",new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "metalcrusher.chrp", xb_Operator, s_LED));
 		NamedCommands.registerCommand("ShootSpeaker",new ShootGeneric(s_Shooter, s_Intake, 1.0, s_LED));
 	}
 
@@ -94,47 +94,55 @@ public class RobotContainer {
   	}
 
 	public void autonomousInit() {
-		// NetworkTableInstance inst = NetworkTableInstance.getDefault();
-		// NetworkTable nt_db = inst.getTable("DB");
-    	// System.out.println(nt_db.getValue("String 0").getString());
-
-		// Command auto = new PathPlannerAuto("!TEST AUTO");
-		// auto.schedule();
+		// TODO: PathPlanner Autonomous solution
 		SequentialCommandGroup auto = new SequentialCommandGroup(new ShootGeneric(s_Shooter, s_Intake, 0.6, s_LED), new DriveForwardWorkaround(s_Swerve));
 		auto.schedule();
 	}
 
 	public void teleopPeriodic() {
 		// Reset FOC
-		if (xb_Driver.getRawButton(XboxController.Button.kLeftStick.value)) {
+		if (xb_Driver.getRawButtonPressed(XboxController.Button.kLeftStick.value)) {
 			s_Swerve.zeroHeading();
+		}
+
+		// Toggle FOC
+		if (xb_Driver.getRawButtonPressed(XboxController.Button.kRightStick.value)) {
+			s_Swerve.toggleFieldOrient();
 		}
 
 		// Song Selection
 		if (!b_PlaySong && xb_Driver.getRawButton(XboxController.Button.kStart.value)) {
 			if (xb_Driver.getPOV() == 0) {
 				b_PlaySong = true;
-				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "bohemianrhapsody.chrp", xb_Driver).schedule();
+				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "bohemianrhapsody.chrp", xb_Driver, s_LED).schedule();
 			}
 			else if (xb_Driver.getPOV() == 45) {
 				b_PlaySong = true;
-				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "creep.chrp", xb_Driver).schedule();
+				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "creep.chrp", xb_Driver, s_LED).schedule();
 			}
 			else if (xb_Driver.getPOV() == 90) {
 				b_PlaySong = true;
-				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "rickroll.chrp", xb_Driver).schedule();
+				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "rickroll.chrp", xb_Driver, s_LED).schedule();
 			}
 			else if (xb_Driver.getPOV() == 135) {
 				b_PlaySong = true;
-				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "snitch.chrp", xb_Driver).schedule();
+				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "snitch.chrp", xb_Driver, s_LED).schedule();
 			}
 			else if (xb_Driver.getPOV() == 180) {
 				b_PlaySong = true;
-				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "starwars.chrp", xb_Driver).schedule();
+				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "starwars.chrp", xb_Driver, s_LED).schedule();
+			}
+			else if (xb_Driver.getPOV() == 215) {
+				b_PlaySong = true;
+				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "kahoot.chrp", xb_Driver, s_LED).schedule();
 			}
 			else if (xb_Driver.getPOV() == 270) {
 				b_PlaySong = true;
-				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "metalcrusher.chrp", xb_Driver).schedule();
+				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "metalcrusher.chrp", xb_Driver, s_LED).schedule();
+			}
+			else if (xb_Driver.getPOV() == 315) {
+				b_PlaySong = true;
+				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "king.chrp", xb_Driver, s_LED).schedule();
 			}
 		}
 		else if (xb_Driver.getRawButton(XboxController.Button.kStart.value) == false) {
