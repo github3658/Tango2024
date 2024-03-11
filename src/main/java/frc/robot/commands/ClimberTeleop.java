@@ -15,7 +15,13 @@ public class ClimberTeleop extends Command {
 
     private final int ctrl_Climb = XboxController.Axis.kRightTrigger.value;
     private final int ctrl_Release = XboxController.Axis.kLeftTrigger.value;
+    private final int ctrl_ManualLower = XboxController.Button.kX.value;
 
+    /**
+     * This is the constructor for the ClimberTeleop command.
+     * @param subsystem The Climber Subsystem
+     * @param port0 The driver controller
+     */
     public ClimberTeleop(Climber subsystem, GenericHID port0) {
         s_Climber = subsystem;
         xb_Driver = port0;
@@ -26,6 +32,13 @@ public class ClimberTeleop extends Command {
     public void initialize() {
     }
 
+    /**
+     * This function runs repeatedly while ClimberTeleop is scheduled and active.
+     * It gets the driver's trigger inputs and raises and lowers the climber from that.
+     * If the robot ends in a position where the climber does not end in its fully-down state, 
+     * the driver can hold the X button to lower the climber manually. 
+     * Be aware this does not check the motor's encoder value!
+     */
     @Override
     public void execute() {
         if (xb_Driver.getRawAxis(ctrl_Climb) > 0.9) {
@@ -37,7 +50,7 @@ public class ClimberTeleop extends Command {
         else {
             s_Climber.stopClimb();
         }
-        if(xb_Driver.getRawButton(XboxController.Button.kX.value))
+        if(xb_Driver.getRawButton(ctrl_ManualLower))
         {
             s_Climber.setMotorSpeed(1.0);
         }

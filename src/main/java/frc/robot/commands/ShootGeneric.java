@@ -20,6 +20,13 @@ public class ShootGeneric extends Command {
     private boolean b_SeenNote;
     private double d_ShooterSpeed = 0.0;
 
+    /**
+     * This is the constructor for the ShootGeneric command.
+     * @param shooter The Shooter subsystem
+     * @param intake The Intake subsystem
+     * @param speed The speed at which to shoot
+     * @param led The LED subsystem
+     */
     public ShootGeneric(Shooter shooter, Intake intake, double speed, LED led) {
         s_LED = led;
         s_Shooter = shooter;
@@ -28,6 +35,9 @@ public class ShootGeneric extends Command {
         addRequirements(s_Shooter, s_Intake);
     }
 
+    /**
+     * When ShootGeneric is initialized, delays are configured and the LEDs are set to a strobe pattern.
+     */
     @Override
     public void initialize() {
         i_ShooterWarmupDelay = 50;
@@ -37,6 +47,11 @@ public class ShootGeneric extends Command {
         s_LED.SetPattern(Pattern.Strobe);
     }
 
+    /**
+     * This function runs repeatedly while ShootGeneric is scheduled.
+     * It runs the shooter motors, waits for a delay, then runs the intake motors.
+     * After a second delay, the command is finished.
+     */
     @Override
     public void execute() {
         s_Shooter.setSpeed(d_ShooterSpeed);
@@ -53,6 +68,9 @@ public class ShootGeneric extends Command {
         }
     }
 
+    /**
+     * When ShootGeneric ends, all motors stop and the LEDs return to their normal state.
+     */
     @Override
     public void end(boolean interrupted) {
         s_Shooter.setSpeed(0.0);

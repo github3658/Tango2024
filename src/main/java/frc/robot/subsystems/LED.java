@@ -1,6 +1,8 @@
 package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.ctre.phoenix.led.CANdle;
+// TODO: Phoenix Libraries V5 keeps invalidating itself after shutdowns. Is this some issue with having both V5 and V6 installed simultaneously?
+
 
 public class LED extends SubsystemBase {
     /* COLOR ENUM */

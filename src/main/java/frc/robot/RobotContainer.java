@@ -15,8 +15,8 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.generated.TunerConstants;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import com.pathplanner.lib.auto.AutoBuilder;
+//import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+//import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 //import com.pathplanner.lib.commands.PathPlannerAuto;
 import frc.robot.subsystems.LED.Color;
@@ -40,30 +40,44 @@ public class RobotContainer {
 	/* CONTROLS (prefix: ctrl) */
 	private final int ctrl_ShooterMain = XboxController.Axis.kRightTrigger.value;
 	private final int ctrl_ShooterAmp = XboxController.Axis.kLeftTrigger.value;
+	private final int ctrl_SongSelect = XboxController.Button.kStart.value;
 
 	/* OTHER VARIABLES */
 	private final Orchestra o_Orchestra = new Orchestra();
 	private boolean b_Shot = false;
 	private boolean b_PlaySong = true;
-	private SendableChooser<Command> m_AutoChooser;
+	//private SendableChooser<Command> m_AutoChooser;
   	//private final Telemetry logger = new Telemetry(c_MaxSwerveSpeed); This telemetry is a little excessive at the moment, I think it's better to have just the important info in SmartDashboard.
 
+	/**
+	 * This function sets the default commands for each subsystem.
+	 * When a subsystem is not scheduled to do anything else, it will default to the command it is given here.
+	 */
   	private void setDefaultSubsystemCommands() {
 		// These commands contain isolated subsystem behavior
 		s_Swerve.setDefaultCommand(new SwerveTeleop(s_Swerve,	 xb_Driver));
 		s_Intake.setDefaultCommand(new IntakeTeleop(s_Intake,	 xb_Operator));
 		s_Shooter.setDefaultCommand(new ShooterTeleop(s_Shooter, xb_Operator));
 		s_Climber.setDefaultCommand(new ClimberTeleop(s_Climber, xb_Driver));
-		s_LED.SetColor(Color.White);
-
 		// More complex behaviors are handled in TeleopPeriodic.
   	}
 
+	/**
+     * This function provides PathPlannerLib with "named commands".
+     * These named commands can be called from PathPlanner's autonomous programs.
+     */
 	private void createNamedCommands() {
 		NamedCommands.registerCommand("MetalCrusher",new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "metalcrusher.chrp", xb_Operator, s_LED));
 		NamedCommands.registerCommand("ShootSpeaker",new ShootGeneric(s_Shooter, s_Intake, 1.0, s_LED));
 	}
 
+	/**
+     * This is the constructor for the robot container.
+	 * It provides the orchestra with all compatible devices,
+	 * sets each subsystem's default commands,
+	 * creates named commands for PathPlanner,
+	 * and defaults the LED array.
+     */
   	public RobotContainer() {
 		// Init orchestra
 		for (ParentDevice pd : s_Climber.requestOrchDevices()) {
@@ -84,68 +98,61 @@ public class RobotContainer {
 
 		s_LED.SetColor(Color.White);
 		s_LED.SetPattern(Pattern.Solid);
-
-		m_AutoChooser = AutoBuilder.buildAutoChooser();
-		SmartDashboard.putData(m_AutoChooser);
   	}
 
+	/**
+	 * This function is not properly implemented currently.
+	 * @return Currently, an autonomous command that does nothing.
+	 */
   	public Command getAutonomousCommand() {
     	return Commands.print("No autonomous command configured");
   	}
 
+	/**
+	 * This function runs when autonomous mode begins.
+	 * Currently, it builds a default autonomous.
+	 * This should be fixed before competition.
+	 */
 	public void autonomousInit() {
 		// TODO: PathPlanner Autonomous solution
 		SequentialCommandGroup auto = new SequentialCommandGroup(new ShootGeneric(s_Shooter, s_Intake, 0.6, s_LED), new DriveForwardWorkaround(s_Swerve));
 		auto.schedule();
 	}
 
+	/**
+	 * This function runs repeatedly while the drivers have control over the robot.
+	 * More complex behaviors that involve commands or multiple subsystems are scheduled here.
+	 * This includes, but is not limited to: shooting for the speaker/amp and playing music.
+	 */
 	public void teleopPeriodic() {
-		// Reset FOC
-		if (xb_Driver.getRawButtonPressed(XboxController.Button.kLeftStick.value)) {
-			s_Swerve.zeroHeading();
-		}
-
-		// Toggle FOC
-		if (xb_Driver.getRawButtonPressed(XboxController.Button.kRightStick.value)) {
-			s_Swerve.toggleFieldOrient();
-		}
-
 		// Song Selection
-		if (!b_PlaySong && xb_Driver.getRawButton(XboxController.Button.kStart.value)) {
+		if (!b_PlaySong && xb_Driver.getRawButton(ctrl_SongSelect)) {
 			if (xb_Driver.getPOV() == 0) {
-				b_PlaySong = true;
-				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "bohemianrhapsody.chrp", xb_Driver, s_LED).schedule();
+				ScheduleSong("bohemianrhapsody.chrp");
 			}
 			else if (xb_Driver.getPOV() == 45) {
-				b_PlaySong = true;
-				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "creep.chrp", xb_Driver, s_LED).schedule();
+				ScheduleSong("creep.chrp");
 			}
 			else if (xb_Driver.getPOV() == 90) {
-				b_PlaySong = true;
-				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "rickroll.chrp", xb_Driver, s_LED).schedule();
+				ScheduleSong("rickroll.chrp");
 			}
 			else if (xb_Driver.getPOV() == 135) {
-				b_PlaySong = true;
-				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "snitch.chrp", xb_Driver, s_LED).schedule();
+				ScheduleSong("snitch.chrp");
 			}
 			else if (xb_Driver.getPOV() == 180) {
-				b_PlaySong = true;
-				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "starwars.chrp", xb_Driver, s_LED).schedule();
+				ScheduleSong("starwars.chrp");
 			}
 			else if (xb_Driver.getPOV() == 215) {
-				b_PlaySong = true;
-				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "kahoot.chrp", xb_Driver, s_LED).schedule();
+				ScheduleSong("megalovania.chrp");
 			}
 			else if (xb_Driver.getPOV() == 270) {
-				b_PlaySong = true;
-				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "metalcrusher.chrp", xb_Driver, s_LED).schedule();
+				ScheduleSong("metalcrusher.chrp");
 			}
 			else if (xb_Driver.getPOV() == 315) {
-				b_PlaySong = true;
-				new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "king.chrp", xb_Driver, s_LED).schedule();
+				ScheduleSong("king.chrp");
 			}
 		}
-		else if (xb_Driver.getRawButton(XboxController.Button.kStart.value) == false) {
+		else if (xb_Driver.getRawButton(ctrl_SongSelect) == false) {
 			b_PlaySong = false;
 		}
 
@@ -168,6 +175,19 @@ public class RobotContainer {
 		}
 	}
 
+	/**
+	 * This schedules the PlaySong command. The only thing you have to worry about is the path to the song.
+	 * @param song The String path to the song
+	 */
+	private void ScheduleSong(String song) {
+		b_PlaySong = true;
+		new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, song, xb_Driver, s_LED).schedule();
+	}
+
+	/**
+	 * This function runs once when the robot is disabled.
+	 * It sets the color of the LED array to white as a visual cue to others that the robot is disabled.
+	 */
 	public void disabledInit() {
 		s_LED.SetColor(Color.White);
 	}

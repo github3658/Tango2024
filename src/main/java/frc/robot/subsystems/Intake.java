@@ -21,7 +21,14 @@ public class Intake extends SubsystemBase {
     private final int c_IntakePivotID = 9;
     private final int c_CANCoderID = 18;
 
-    /* ENUMS */
+    /**
+     * An enum of possible targets for the intake pivot. Includes:
+     * <p> None (Default state, no target)
+     * <p> Ground
+     * <p> Source (Not implemented)
+     * <p> Amp
+     * <p> Stow
+     */
     public enum PivotTarget {
         None,
         Ground,
@@ -30,6 +37,14 @@ public class Intake extends SubsystemBase {
         Stow
     }
 
+    /**
+     * An enum of possible states for the intake. Includes:
+     * <p> None (Default state)
+     * <p> Intake (Cancelled when a note is detected)
+     * <p> Eject (Feeding the shooter)
+     * <p> FastEject (For the Amp. Cancelled when a note is detected)
+     * <p> FeedShooter (Unused)
+     */
     public enum IntakeState {
         None,
         Intake,
@@ -243,11 +258,19 @@ public class Intake extends SubsystemBase {
         return Math.abs(getPivotAngle() - pivotTargetToAngle(e_PivotTarget)) < 5;
     }
 
+    /**
+     * Get devices in this subsystem that the orchestra can use.
+     * @return ParentDevices. This includes TalonFX, Pigeon2, and other CTRE devices.
+     */
     public ParentDevice[] requestOrchDevices() {
         ParentDevice[] pd = {m_IntakeNote, m_IntakePivot, n_Encoder};
         return pd;
     }
 
+    /**
+     * Get the combined output of this subsytem's motors.
+     * @return The sum of motor outputs as a double.
+     */
     public double pollOrchOutput() {
         return Math.abs(m_IntakeNote.get()) + Math.abs(m_IntakePivot.get());
     }

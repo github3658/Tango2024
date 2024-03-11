@@ -24,6 +24,8 @@ public class SwerveTeleop extends Command {
     private final int ctrl_Strafe = XboxController.Axis.kLeftX.value;
     private final int ctrl_Rotate = XboxController.Axis.kRightX.value;
     private final int ctrl_Slow = XboxController.Button.kA.value;
+    private final int ctrl_ResetFOC = XboxController.Button.kLeftStick.value;
+    private final int ctrl_ToggleControl = XboxController.Button.kRightStick.value;
 
     private GenericHID xb_Driver;
 
@@ -32,6 +34,11 @@ public class SwerveTeleop extends Command {
     private final SwerveRequest.RobotCentric drive_robot = new SwerveRequest.RobotCentric()
     .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
+    /**
+     * This is the constructor for the SwerveTeleop command.
+     * @param subsystem The Swerve subsystem
+     * @param port0 The driver's controller
+     */
     public SwerveTeleop(Swerve subsystem, GenericHID port0) {
         s_Swerve = subsystem;
         xb_Driver = new GenericHID(0);
@@ -42,8 +49,28 @@ public class SwerveTeleop extends Command {
     public void initialize() {
     }
 
+    /**
+     * This function runs repeatedly while SwerveTeleop is scheduled and active.
+     * The following inputs lead to the following actions:
+     * <p> Left Stick pressed - Reset field-oriented control
+     * <p> Right Stick pressed - Toggle between field-oriented and robot-oriented control
+     * <p> Left Stick up/down - Forward / Backward Swerve motion
+     * <p> Left Stick left/right - Left / Right Swerve motion
+     * <p> Right Stick left/right - Swerve rotation
+     * <p> A Button - Precision driving mode
+     */
     @Override
     public void execute() {
+        // Reset FOC
+		if (xb_Driver.getRawButtonPressed(ctrl_ResetFOC)) {
+			s_Swerve.zeroHeading();
+		}
+
+		// Toggle FOC
+		if (xb_Driver.getRawButtonPressed(ctrl_ToggleControl)) {
+			s_Swerve.toggleFieldOrient();
+		}
+
         double forward = -Math.pow(xb_Driver.getRawAxis(ctrl_Forward),3);
         double strafe = -Math.pow(xb_Driver.getRawAxis(ctrl_Strafe),3);
         double rotate = -Math.pow(xb_Driver.getRawAxis(ctrl_Rotate),3);

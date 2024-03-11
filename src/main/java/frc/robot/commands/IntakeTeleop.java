@@ -20,6 +20,11 @@ public class IntakeTeleop extends Command {
     private final int ctrl_Eject = XboxController.Button.kB.value;
     private final int ctrl_Stop = XboxController.Button.kY.value;
 
+    /**
+     * This is the constructor for the IntakeTeleop command.
+     * @param subsystem The Intake Subsystem
+     * @param port1 The operator controller
+     */
     public IntakeTeleop(Intake subsystem, GenericHID port1) {
         s_Intake = subsystem;
         xb_Operator = port1;
@@ -30,6 +35,22 @@ public class IntakeTeleop extends Command {
     public void initialize() {
     }
 
+    /**
+     * This function runs repeatedly while IntakeTeleop is scheduled and active.
+     * The operator sets the Intake Pivot Target using the D-pad, 
+     * and can manually set the intake to intake, eject, and stop with the face buttons.
+     * Keep in mind that the intake will automatically change intake pivot and state as it detects notes.
+     * <p> ------------
+     * <p> PIVOT TARGETS:
+     * <p> Down - Stow
+     * <p> Right - Amp
+     * <p> Up - Ground 
+     * <p> ------------
+     * <p> INTAKE CONTROLS:
+     * <p> A Button - Intake
+     * <p> B Button - Eject
+     * <p> Y Button - Stop
+     */
     @Override
     public void execute() {
         //if (xb_Operator.getRawButton(ctrl_IntakeMain)) {
@@ -59,10 +80,6 @@ public class IntakeTeleop extends Command {
                 s_Intake.setIntake(IntakeState.None);
             }
         //}
-
-        // if (xb_Operator.getRawButtonPressed(XboxController.Button.kStart.value)) {
-        //     s_Intake.resetOffset();
-        // }
     }
 
     @Override
