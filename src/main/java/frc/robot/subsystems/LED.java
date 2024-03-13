@@ -1,11 +1,19 @@
 package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.ctre.phoenix.led.CANdle;
-// TODO: Phoenix Libraries V5 keeps invalidating itself after shutdowns. Is this some issue with having both V5 and V6 installed simultaneously?
-
+// IMPORTANT: com.ctre.phoenix not resolving is probably a quirk with a VS Code extension. The code builds fine.
 
 public class LED extends SubsystemBase {
-    /* COLOR ENUM */
+    /**
+     * An enum of configured color presets for the LED subsystem. Includes:
+     * <p> Green
+     * <p> Yellow
+     * <p> Blue
+     * <p> Orange
+     * <p> Red
+     * <p> White
+     * <p> Magenta
+     */
     public enum Color {
         Green(0),
         Yellow(1),
@@ -21,7 +29,12 @@ public class LED extends SubsystemBase {
     }
     //private Color e_ColorTarget;
 
-    /* PATTERN ENUM */
+    /**
+     * An enum of configured patterns for the LED subsystem. Includes:
+     * <p> Solid
+     * <p> Strobe - Will flicker between the set color and the next in the Color enum.
+     * <p> Rainbow - Will iterate through all colors in the Color enum.
+     */
     public enum Pattern {
         Solid,
         Strobe,
@@ -43,7 +56,7 @@ public class LED extends SubsystemBase {
     private final int[] color_Magenta = {217,1,122};
 
     /* CANDLE AND ANIMATIONS */
-    public final CANdle m_CANdle = new CANdle(c_CANDleID, "3658CANivore");
+    public final CANdle m_CANdle = new CANdle(c_CANDleID, "3658CANivore"); // Ignore errors regarding the CANdle, it errantly thinks that com.ctre.phoenix can't be resolved.
 
     /* OTHER VARIABLES */
     private float f_Brightness = 1;
@@ -53,6 +66,9 @@ public class LED extends SubsystemBase {
     private int i_CurrentColorIndex = 0;
     private boolean b_Raw = false;
 
+    /**
+     * This is the constructor for the LED subsystem.
+     */
     public LED() {
         //e_ColorTarget = Color.White;
         e_PatternTarget = Pattern.Solid;

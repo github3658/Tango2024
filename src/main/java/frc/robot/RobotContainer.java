@@ -24,6 +24,9 @@ import frc.robot.subsystems.LED.Pattern;
 import frc.robot.subsystems.*;
 import frc.robot.commands.*;
 
+//TODO: For the limelight, set the RIO static ip configuration: (IP 10.36.58.2, MASK 255.255.255.0, GATEWAY 10.36.58.1)
+//TODO: For the limelight, set the Driver Station static ip configuration: (IP 10.36.58.5, MASK 255.0.0.0, GATEWAY 10.36.58.1)
+
 public class RobotContainer {
 
 	/* SUBSYSTEM DEFINITIONS (prefix: s) */
