@@ -48,7 +48,7 @@ public class PlaySong extends Command {
         s_LED = led;
         str_song = song;
         xb_Operator = xbox;
-        addRequirements(s_Swerve,s_Intake,s_Shooter,s_Climber);
+        addRequirements(s_Swerve,s_Intake,s_Shooter);//,s_Climber);
     }
 
     /**
@@ -95,6 +95,6 @@ public class PlaySong extends Command {
      * @return The combined output of each subsystem
      */
     private double pollOrchOutput() {
-        return (s_Climber.pollOrchOutput() + s_Intake.pollOrchOutput() + s_Shooter.pollOrchOutput() + s_Swerve.pollOrchOutput())/18.0;
+        return (s_Climber.pollOrchOutput() + s_Intake.pollOrchOutput() + s_Shooter.pollOrchOutput() + s_Swerve.pollOrchOutput())*50.0;
     }
 }

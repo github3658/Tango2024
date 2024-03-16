@@ -19,6 +19,8 @@ public class SwerveTeleop extends Command {
     private final double c_SwerveRampDeadzone = 0.05;
     private final double c_AccelTime = 50.0;
     private double d_SwerveRamp = 0.0;
+    private boolean b_Automatic = false;
+    private double d_AutoRotate = 0.0;
 
     private final int ctrl_Forward = XboxController.Axis.kLeftY.value;
     private final int ctrl_Strafe = XboxController.Axis.kLeftX.value;
@@ -71,9 +73,19 @@ public class SwerveTeleop extends Command {
 			s_Swerve.toggleFieldOrient();
 		}
 
-        double forward = -Math.pow(xb_Driver.getRawAxis(ctrl_Forward),3);
-        double strafe = -Math.pow(xb_Driver.getRawAxis(ctrl_Strafe),3);
-        double rotate = -Math.pow(xb_Driver.getRawAxis(ctrl_Rotate),3);
+        double forward;
+        double strafe;
+        double rotate;
+
+        forward = -Math.pow(xb_Driver.getRawAxis(ctrl_Forward),3);
+        strafe = -Math.pow(xb_Driver.getRawAxis(ctrl_Strafe),3);
+
+        if (b_Automatic) {
+            rotate = d_AutoRotate;
+        }
+        else {
+            rotate = -Math.pow(xb_Driver.getRawAxis(ctrl_Rotate),3);
+        }
 
         if (xb_Driver.getRawButton(ctrl_Slow)) {
             forward *= 0.1;
@@ -102,6 +114,14 @@ public class SwerveTeleop extends Command {
                 .withRotationalRate(rotate * d_SwerveRamp * c_MaxSwerveAngularRate) // Drive counterclockwise with negative X (left)
             );
         }
+    }
+
+    public void setRotate(double rotate) {
+        d_AutoRotate = rotate;
+    }
+
+    public void setAutomatic(boolean auto) {
+        b_Automatic = auto;
     }
 
     @Override

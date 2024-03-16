@@ -22,7 +22,9 @@ import com.pathplanner.lib.auto.NamedCommands;
 import frc.robot.subsystems.LED.Color;
 import frc.robot.subsystems.LED.Pattern;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.Intake.PivotTarget;
 import frc.robot.commands.*;
+import frc.robot.LimelightHelpers;
 
 //TODO: For the limelight, set the RIO static ip configuration: (IP 10.36.58.2, MASK 255.255.255.0, GATEWAY 10.36.58.1)
 //TODO: For the limelight, set the Driver Station static ip configuration: (IP 10.36.58.5, MASK 255.0.0.0, GATEWAY 10.36.58.1)
@@ -44,6 +46,7 @@ public class RobotContainer {
 	private final int ctrl_ShooterMain = XboxController.Axis.kRightTrigger.value;
 	private final int ctrl_ShooterAmp = XboxController.Axis.kLeftTrigger.value;
 	private final int ctrl_SongSelect = XboxController.Button.kStart.value;
+	private final int ctrl_VisionAlign = XboxController.Button.kB.value;
 
 	/* OTHER VARIABLES */
 	private final Orchestra o_Orchestra = new Orchestra();
@@ -52,16 +55,19 @@ public class RobotContainer {
 	//private SendableChooser<Command> m_AutoChooser;
   	//private final Telemetry logger = new Telemetry(c_MaxSwerveSpeed); This telemetry is a little excessive at the moment, I think it's better to have just the important info in SmartDashboard.
 
+	/* COMMAND DEFINITIONS (prefix: com) */
+	private final SwerveTeleop com_SwerveTeleop = new SwerveTeleop(s_Swerve, xb_Driver);
+
 	/**
 	 * This function sets the default commands for each subsystem.
 	 * When a subsystem is not scheduled to do anything else, it will default to the command it is given here.
 	 */
   	private void setDefaultSubsystemCommands() {
 		// These commands contain isolated subsystem behavior
-		s_Swerve.setDefaultCommand(new SwerveTeleop(s_Swerve,	 xb_Driver));
+		s_Swerve.setDefaultCommand(com_SwerveTeleop);
 		s_Intake.setDefaultCommand(new IntakeTeleop(s_Intake,	 xb_Operator));
 		s_Shooter.setDefaultCommand(new ShooterTeleop(s_Shooter, xb_Operator));
-		s_Climber.setDefaultCommand(new ClimberTeleop(s_Climber, xb_Driver));
+		//s_Climber.setDefaultCommand(new ClimberTeleop(s_Climber, xb_Driver));
 		// More complex behaviors are handled in TeleopPeriodic.
   	}
 
@@ -70,7 +76,7 @@ public class RobotContainer {
      * These named commands can be called from PathPlanner's autonomous programs.
      */
 	private void createNamedCommands() {
-		NamedCommands.registerCommand("MetalCrusher",new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, "metalcrusher.chrp", xb_Operator, s_LED));
+		//NamedCommands.registerCommand("MetalCrusher",new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, null, "metalcrusher.chrp", xb_Operator, s_LED));
 		NamedCommands.registerCommand("ShootSpeaker",new ShootGeneric(s_Shooter, s_Intake, 1.0, s_LED));
 	}
 
@@ -83,9 +89,9 @@ public class RobotContainer {
      */
   	public RobotContainer() {
 		// Init orchestra
-		for (ParentDevice pd : s_Climber.requestOrchDevices()) {
-			o_Orchestra.addInstrument(pd);
-		}
+		// for (ParentDevice pd : s_Climber.requestOrchDevices()) {
+		// 	o_Orchestra.addInstrument(pd);
+		// }
 		for (ParentDevice pd : s_Intake.requestOrchDevices()) {
 			o_Orchestra.addInstrument(pd);
 		}
@@ -145,7 +151,7 @@ public class RobotContainer {
 			else if (xb_Driver.getPOV() == 180) {
 				ScheduleSong("starwars.chrp");
 			}
-			else if (xb_Driver.getPOV() == 215) {
+			else if (xb_Driver.getPOV() == 225) {
 				ScheduleSong("megalovania.chrp");
 			}
 			else if (xb_Driver.getPOV() == 270) {
@@ -160,7 +166,11 @@ public class RobotContainer {
 		}
 
 		// Shoot for the Speaker
-		if (xb_Operator.getRawAxis(ctrl_ShooterMain) > 0.9 && !b_Shot) {
+		if (xb_Operator.getRawButtonPressed(XboxController.Button.kY.value) && !b_Shot) {
+			b_Shot = true;
+			new ShootGeneric(s_Shooter, s_Intake, 0.75, s_LED).schedule();
+		}
+		else if (xb_Operator.getRawAxis(ctrl_ShooterMain) > 0.9 && !b_Shot) {
 			b_Shot = true;
 			new ShootGeneric(s_Shooter, s_Intake, 0.60, s_LED).schedule();
 		}
@@ -175,6 +185,16 @@ public class RobotContainer {
 		}
 		else if (xb_Operator.getRawAxis(ctrl_ShooterAmp) < 0.1 && b_Shot) {
 			b_Shot = false;
+		}
+
+		// Vision Alignment
+		if (xb_Driver.getRawButton(ctrl_VisionAlign)) {
+			com_SwerveTeleop.setAutomatic(true);
+			double calculated = Math.min(Math.max(-(LimelightHelpers.getTX("")-4.3)*0.05,-1),1);
+			com_SwerveTeleop.setRotate(calculated);
+		}
+		else {
+			com_SwerveTeleop.setAutomatic(false);
 		}
 	}
 

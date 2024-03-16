@@ -130,21 +130,39 @@ public class LED extends SubsystemBase {
         return c;
     }
 
+    /**
+     * Sets the color of the LED subsystem using a Color enum value
+     * @param color A Color enum value
+     */
     public void SetColor(Color color) {
         i_CurrentColorIndex = color.value;
         b_Raw = false;
     }
 
+    /**
+     * Sets the color of the LED subsystem using raw RGB values
+     * @param r The red channel
+     * @param g The green channel
+     * @param b The blue channel
+     */
     public void SetColorRaw(int r, int g, int b) {
         int[] array = {r,g,b};
         i_CurrentColor = array;
         b_Raw = true;
     }
 
+    /**
+     * Sets the pattern of the LED subsystem using a Pattern enum value
+     * @param pattern A Pattern enum value
+     */
     public void SetPattern(Pattern pattern) {
         e_PatternTarget = pattern;
     }
 
+    /**
+     * Sets the brightness of the LED subsystem using a float of the range 0-1
+     * @param brightness A float between 0-1
+     */
     public void setBrightness(float brightness) {
         f_Brightness = brightness;
     }

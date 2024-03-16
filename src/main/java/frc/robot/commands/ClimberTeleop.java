@@ -42,17 +42,17 @@ public class ClimberTeleop extends Command {
     @Override
     public void execute() {
         if (xb_Driver.getRawAxis(ctrl_Climb) > 0.9) {
-            s_Climber.climb();
+            // s_Climber.climb();
         }
         else if (xb_Driver.getRawAxis(ctrl_Release) > 0.9) {
-            s_Climber.release();
+            // s_Climber.release();
         }
         else {
-            s_Climber.stopClimb();
+            // s_Climber.stopClimb();
         }
         if(xb_Driver.getRawButton(ctrl_ManualLower))
         {
-            s_Climber.setMotorSpeed(1.0);
+            // s_Climber.setMotorSpeed(1.0);
         }
     }
 

@@ -32,7 +32,7 @@ public class Intake extends SubsystemBase {
     public enum PivotTarget {
         None,
         Ground,
-        Source,
+        StageShot,
         Amp,
         Stow
     }
@@ -62,9 +62,11 @@ public class Intake extends SubsystemBase {
     private final DigitalInput n_NoteDetect;
 
     /* OTHER VARIABLES */
+    private double d_EncoderOffset = 0.0;
     private double d_IntakeSpeed = 0.0;
     private double d_IntakePivotSpeed = 0.0;
     private int i_IntakeSwitchDelay = 0;
+    private boolean b_HasNote = false;
     private PivotTarget e_PivotTarget = PivotTarget.None;
     private IntakeState e_IntakeState = IntakeState.None;
     private IntakeState e_IntakeStateGOAL = IntakeState.None;
@@ -83,8 +85,16 @@ public class Intake extends SubsystemBase {
         n_Encoder = new CANcoder(c_CANCoderID, "3658CANivore");
         n_NoteDetect = new DigitalInput(9);
         s_LED.SetColor(Color.Yellow);
+
+        d_EncoderOffset = n_Encoder.getAbsolutePosition().getValueAsDouble();
     }
 
+    /**
+     * This function runs repeatedly. It handles the following intake logic:
+     * <p> Sets the pivot motor speed to reach target
+     * <p> Switches state automatically depending on specific conditions
+     * <p> Sets LED status depending on possession of note
+     */
     @Override
     public void periodic() {
         // Pivot Control
@@ -108,28 +118,30 @@ public class Intake extends SubsystemBase {
        
 
         // Pivot control
-        if (getPivotAngle() > 0) {
-            setPivot(PivotTarget.None);
-        }
-
         if (e_PivotTarget != PivotTarget.None) {
             double d_CurrentPivot = getPivotAngle();
-            d_IntakePivotSpeed = Math.max(Math.min(((d_PivotAngle - d_CurrentPivot) / 10 * 0.35),0.40),-0.40);
+            d_IntakePivotSpeed = Math.max(Math.min(((d_CurrentPivot - d_PivotAngle) * 1.5),0.40),-0.40);
         }
         m_IntakePivot.set(d_IntakePivotSpeed);
 
         // Stow on detect ground note
-        if (e_PivotTarget == PivotTarget.Ground && intakeHasNote()) {
+        if (e_PivotTarget == PivotTarget.Ground && intakeDetectsNote()) { // Automatically revert to stow state
+            b_HasNote = true;
             i_IntakeSwitchDelay = 12;
             s_LED.SetColor(Color.Green);
             setStateToStow();
         }
-        else if (e_IntakeState == IntakeState.Intake && intakeHasNote()) {
+        else if (e_IntakeState == IntakeState.Intake && intakeDetectsNote()) { // Stop manual intake
+            b_HasNote = true;
             // i_IntakeSwitchDelay = 25;
             s_LED.SetColor(Color.Green);
             setIntake(IntakeState.None);
         }
-        else if (e_IntakeState == IntakeState.FastEject && intakeHasNote()) {
+        else if (e_IntakeState == IntakeState.Eject && intakeDetectsNote()) { // ShootGeneric response
+            b_HasNote = false;
+        }
+        else if (e_IntakeState == IntakeState.FastEject && intakeDetectsNote()) { // Stop manual eject
+            b_HasNote = false;
             s_LED.SetColor(Color.Yellow);
             i_IntakeSwitchDelay = 25;
             e_IntakeStateGOAL = IntakeState.None;
@@ -149,20 +161,30 @@ public class Intake extends SubsystemBase {
         SmartDashboard.putString("Intake - State", e_IntakeState.name());
     }
 
-    // TODO: Redefine pivot targets for CANCoder
+    /**
+     * Converts a PivotTarget to its corresponding CANcoder target value.
+     * @param target A PivotTarget value
+     * @return A double representing what value the CANcoder should have when the target is reached
+     */
     public double pivotTargetToAngle(PivotTarget target) {
         switch (target) {
             case Ground:
-                return -35.0;//return -62.0;
-            case Source:
+                return 0.59;
+            case StageShot:
+                return 0.065;
             case Amp:
-                return -17.0;//return -28.0;
+                return 0.37;
             case Stow:
             default:
                 return 0.0;
         }
     }
 
+    /**
+     * Converts an IntakeState to a motor speed (double)
+     * @param state An IntakeState value
+     * @return A double representing the speed at which the IntakeNote motor should run in this state
+     */
     public double intakeStateToSpeed(IntakeState state) {
         switch (state) {
             case Intake:
@@ -177,7 +199,6 @@ public class Intake extends SubsystemBase {
         }
     }
 
-    // Public functions, so commands and subsystems can get info about the intake
     public IntakeState getIntakeState() {
         return e_IntakeState;
     }
@@ -186,25 +207,40 @@ public class Intake extends SubsystemBase {
         return e_PivotTarget;
     }
 
-    // TODO: test intake CANCoder
+    /**
+     * Returns the CANcoder value, modified such that 0 is the Stow state and ~0.6 is the Ground state.
+     * @return A modified CANcoder value
+     */
     public double getPivotAngle() {
-        //return (n_Encoder.get()*100)-76.77-d_PivotOffset;
-        return n_Encoder.getAbsolutePosition().getValueAsDouble();
+        double raw = (n_Encoder.getAbsolutePosition().getValueAsDouble());
+        if (raw > 0) {
+            return 1-raw+d_EncoderOffset;
+        }
+        else {
+            return -raw+d_EncoderOffset;
+        }
     }
 
-    public boolean intakeHasNote() {
+    /**
+     * Gets whether the Intake sensor currently detects a note
+     * @return If a note is detected
+     */
+    public boolean intakeDetectsNote() {
         return !n_NoteDetect.get();
+    }
+
+    /**
+     * Gets whether the Intake currently has a note stowed
+     * @return If a note is stowed
+     */
+    public boolean intakeHasNote() {
+        return b_HasNote;
     }
 
     // Pivot functions
     public void setStateToGround() {
         e_PivotTarget = PivotTarget.Ground;
         e_IntakeStateGOAL = IntakeState.Intake;
-    }
-
-    public void setStateToSource() {
-        e_PivotTarget = PivotTarget.Source;
-        e_IntakeStateGOAL = IntakeState.None;
     }
 
     public void setStateToAmp() {
@@ -255,7 +291,7 @@ public class Intake extends SubsystemBase {
 
     // Private functions
     private boolean isPivotAtTarget() {
-        return Math.abs(getPivotAngle() - pivotTargetToAngle(e_PivotTarget)) < 5;
+        return Math.abs(getPivotAngle() - pivotTargetToAngle(e_PivotTarget)) < 0.05;
     }
 
     /**
