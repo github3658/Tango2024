@@ -62,13 +62,13 @@ public class Intake extends SubsystemBase {
     private final DigitalInput n_NoteDetect;
 
     /* OTHER VARIABLES */
-    private double d_EncoderOffset = 0.0;
-    private double d_IntakeSpeed = 0.0;
+    private double d_EncoderOffset    = 0.0;
+    private double d_IntakeSpeed      = 0.0;
     private double d_IntakePivotSpeed = 0.0;
     private int i_IntakeSwitchDelay = 0;
     private boolean b_HasNote = false;
     private PivotTarget e_PivotTarget = PivotTarget.None;
-    private IntakeState e_IntakeState = IntakeState.None;
+    private IntakeState e_IntakeState     = IntakeState.None;
     private IntakeState e_IntakeStateGOAL = IntakeState.None;
 
     private LED s_LED;
@@ -115,7 +115,6 @@ public class Intake extends SubsystemBase {
         else {
             m_IntakeNote.set(0.0);
         }
-       
 
         // Pivot control
         if (e_PivotTarget != PivotTarget.None) {

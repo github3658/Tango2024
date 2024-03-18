@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.LED.Color;
 import frc.robot.subsystems.LED.Pattern;
 
 public class PlaySong extends Command {
@@ -80,6 +81,8 @@ public class PlaySong extends Command {
             o_Orchestra.stop();
             System.out.println("Orchestra finished!");
             s_LED.setBrightness(1);
+            s_LED.SetPattern(Pattern.Solid);
+            s_LED.SetColor(s_Intake.intakeHasNote() ? Color.Green : Color.Yellow);
         }
         SmartDashboard.putNumber("Orchestra - Output", output);
     }

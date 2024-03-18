@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Climber;
+import frc.robot.subsystems.Climber.ClimbState;
 
 public class ClimberTeleop extends Command {
     private final Climber s_Climber;
@@ -37,22 +38,22 @@ public class ClimberTeleop extends Command {
      * It gets the driver's trigger inputs and raises and lowers the climber from that.
      * If the robot ends in a position where the climber does not end in its fully-down state, 
      * the driver can hold the X button to lower the climber manually. 
-     * Be aware this does not check the motor's encoder value!
+     * Be aware this does not check the motors' encoder values!
      */
     @Override
     public void execute() {
         if (xb_Driver.getRawAxis(ctrl_Climb) > 0.9) {
-            // s_Climber.climb();
+            s_Climber.setClimbState(ClimbState.Climb);
         }
         else if (xb_Driver.getRawAxis(ctrl_Release) > 0.9) {
-            // s_Climber.release();
+            s_Climber.setClimbState(ClimbState.Release);
         }
         else {
-            // s_Climber.stopClimb();
+            s_Climber.setClimbState(ClimbState.Idle);
         }
         if(xb_Driver.getRawButton(ctrl_ManualLower))
         {
-            // s_Climber.setMotorSpeed(1.0);
+            s_Climber.setClimbState(ClimbState.ManualLower);
         }
     }
 

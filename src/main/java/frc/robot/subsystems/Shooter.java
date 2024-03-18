@@ -1,4 +1,3 @@
-// TODO: Code to calculate motor speed to note distance
 // TODO: Finalize shooter controls with drive team
 
 // This is the shooter subsystem.
@@ -29,28 +28,28 @@ public class Shooter extends SubsystemBase {
 	private final TalonFX m_ShootExtend;
 
 	/* OTHER VARIABLES */
-	private double d_ShooterSpeed = 0.0;
+	private double d_ShooterSpeed      = 0.0;
 	private double d_ExtensionPosition = 0.0;
-	private double d_PivotPosition = 0.0;
+	private double d_PivotPosition     = 0.0;
 
 	//private LED s_LED;
 	public Shooter(LED led) {
 		//s_LED = led;
-		m_ShootLeft = new TalonFX(c_ShootLeftID, "3658CANivore");
-		m_ShootRight = new TalonFX(c_ShootRightID, "3658CANivore");
-		m_ShootPivot = new TalonFX(c_ShootPivotID, "3658CANivore");
+		m_ShootLeft   = new TalonFX(c_ShootLeftID,   "3658CANivore");
+		m_ShootRight  = new TalonFX(c_ShootRightID,  "3658CANivore");
+		m_ShootPivot  = new TalonFX(c_ShootPivotID,  "3658CANivore");
 		m_ShootExtend = new TalonFX(c_ShootExtendID, "3658CANivore");
-		m_ShootLeft.getConfigurator().apply(new TalonFXConfiguration());
-		m_ShootRight.getConfigurator().apply(new TalonFXConfiguration());
-		m_ShootPivot.getConfigurator().apply(new TalonFXConfiguration());
+		m_ShootLeft.  getConfigurator().apply(new TalonFXConfiguration());
+		m_ShootRight. getConfigurator().apply(new TalonFXConfiguration());
+		m_ShootPivot. getConfigurator().apply(new TalonFXConfiguration());
 		m_ShootExtend.getConfigurator().apply(new TalonFXConfiguration());
 
-		m_ShootLeft.setNeutralMode(NeutralModeValue.Coast);
-		m_ShootLeft.setNeutralMode(NeutralModeValue.Coast);
-		m_ShootPivot.setNeutralMode(NeutralModeValue.Brake);
+		m_ShootLeft.  setNeutralMode(NeutralModeValue.Coast);
+		m_ShootLeft.  setNeutralMode(NeutralModeValue.Coast);
+		m_ShootPivot. setNeutralMode(NeutralModeValue.Brake);
 		m_ShootExtend.setNeutralMode(NeutralModeValue.Brake);
 
-		m_ShootLeft.setInverted(true);
+		m_ShootLeft. setInverted(true);
 		m_ShootRight.setInverted(false);
 
 		m_ShootPivot.setPosition(0);
@@ -58,7 +57,7 @@ public class Shooter extends SubsystemBase {
 
 	@Override
 	public void periodic() {
-		m_ShootLeft.set(d_ShooterSpeed);
+		m_ShootLeft. set(d_ShooterSpeed);
 		m_ShootRight.set(d_ShooterSpeed);
 		
 		// Extension Control

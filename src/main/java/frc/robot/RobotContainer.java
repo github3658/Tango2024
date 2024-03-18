@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.generated.TunerConstants;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+//import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 //import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -22,7 +22,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import frc.robot.subsystems.LED.Color;
 import frc.robot.subsystems.LED.Pattern;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.Intake.PivotTarget;
+//import frc.robot.subsystems.Intake.PivotTarget;
 import frc.robot.commands.*;
 import frc.robot.LimelightHelpers;
 
@@ -39,18 +39,19 @@ public class RobotContainer {
 	private final Climber  s_Climber  = new Climber(s_LED);
 
 	/* INPUT DEVICES (prefix: xb) */
-	private final GenericHID xb_Driver = new GenericHID(0);
+	private final GenericHID xb_Driver   = new GenericHID(0);
 	private final GenericHID xb_Operator = new GenericHID(1);
 
 	/* CONTROLS (prefix: ctrl) */
 	private final int ctrl_ShooterMain = XboxController.Axis.kRightTrigger.value;
-	private final int ctrl_ShooterAmp = XboxController.Axis.kLeftTrigger.value;
-	private final int ctrl_SongSelect = XboxController.Button.kStart.value;
+	private final int ctrl_ShooterAmp  = XboxController.Axis.kLeftTrigger.value;
+	private final int ctrl_SongSelect  = XboxController.Button.kStart.value;
 	private final int ctrl_VisionAlign = XboxController.Button.kB.value;
+	private final int ctrl_StageShot   = XboxController.Button.kY.value;
 
 	/* OTHER VARIABLES */
 	private final Orchestra o_Orchestra = new Orchestra();
-	private boolean b_Shot = false;
+	private boolean b_Shot     = false;
 	private boolean b_PlaySong = true;
 	//private SendableChooser<Command> m_AutoChooser;
   	//private final Telemetry logger = new Telemetry(c_MaxSwerveSpeed); This telemetry is a little excessive at the moment, I think it's better to have just the important info in SmartDashboard.
@@ -65,9 +66,9 @@ public class RobotContainer {
   	private void setDefaultSubsystemCommands() {
 		// These commands contain isolated subsystem behavior
 		s_Swerve.setDefaultCommand(com_SwerveTeleop);
-		s_Intake.setDefaultCommand(new IntakeTeleop(s_Intake,	 xb_Operator));
+		s_Intake.setDefaultCommand( new IntakeTeleop( s_Intake,	 xb_Operator));
 		s_Shooter.setDefaultCommand(new ShooterTeleop(s_Shooter, xb_Operator));
-		//s_Climber.setDefaultCommand(new ClimberTeleop(s_Climber, xb_Driver));
+		s_Climber.setDefaultCommand(new ClimberTeleop(s_Climber, xb_Driver));
 		// More complex behaviors are handled in TeleopPeriodic.
   	}
 
@@ -89,9 +90,9 @@ public class RobotContainer {
      */
   	public RobotContainer() {
 		// Init orchestra
-		// for (ParentDevice pd : s_Climber.requestOrchDevices()) {
-		// 	o_Orchestra.addInstrument(pd);
-		// }
+		for (ParentDevice pd : s_Climber.requestOrchDevices()) {
+			o_Orchestra.addInstrument(pd);
+		}
 		for (ParentDevice pd : s_Intake.requestOrchDevices()) {
 			o_Orchestra.addInstrument(pd);
 		}
@@ -136,29 +137,33 @@ public class RobotContainer {
 	public void teleopPeriodic() {
 		// Song Selection
 		if (!b_PlaySong && xb_Driver.getRawButton(ctrl_SongSelect)) {
-			if (xb_Driver.getPOV() == 0) {
-				ScheduleSong("bohemianrhapsody.chrp");
-			}
-			else if (xb_Driver.getPOV() == 45) {
-				ScheduleSong("creep.chrp");
-			}
-			else if (xb_Driver.getPOV() == 90) {
-				ScheduleSong("rickroll.chrp");
-			}
-			else if (xb_Driver.getPOV() == 135) {
-				ScheduleSong("snitch.chrp");
-			}
-			else if (xb_Driver.getPOV() == 180) {
-				ScheduleSong("starwars.chrp");
-			}
-			else if (xb_Driver.getPOV() == 225) {
-				ScheduleSong("megalovania.chrp");
-			}
-			else if (xb_Driver.getPOV() == 270) {
-				ScheduleSong("metalcrusher.chrp");
-			}
-			else if (xb_Driver.getPOV() == 315) {
-				ScheduleSong("king.chrp");
+			switch (xb_Driver.getPOV()) {
+				case 0: // UP
+					ScheduleSong("bohemianrhapsody.chrp");
+					break;
+				case 45: // UP RIGHT
+					ScheduleSong("creep.chrp");
+					break;
+				case 90: // RIGHT
+					ScheduleSong("rickroll.chrp");
+					break;
+				case 135: // DOWN RIGHT
+					ScheduleSong("snitch.chrp");
+					break;
+				case 180: // DOWN
+					ScheduleSong("starwars.chrp");
+					break;
+				case 225: // DOWN LEFT
+					ScheduleSong("megalovania.chrp");
+					break;
+				case 270: // LEFT
+					ScheduleSong("metalcrusher.chrp");
+					break;
+				case 315: // UP LEFT
+					ScheduleSong("king.chrp");
+					break;
+				default:
+					break;
 			}
 		}
 		else if (xb_Driver.getRawButton(ctrl_SongSelect) == false) {
@@ -166,11 +171,11 @@ public class RobotContainer {
 		}
 
 		// Shoot for the Speaker
-		if (xb_Operator.getRawButtonPressed(XboxController.Button.kY.value) && !b_Shot) {
+		if (xb_Operator.getRawButtonPressed(ctrl_StageShot) && !b_Shot) { // Special shot from the protected zone on the Stage.
 			b_Shot = true;
 			new ShootGeneric(s_Shooter, s_Intake, 0.75, s_LED).schedule();
 		}
-		else if (xb_Operator.getRawAxis(ctrl_ShooterMain) > 0.9 && !b_Shot) {
+		else if (xb_Operator.getRawAxis(ctrl_ShooterMain) > 0.9 && !b_Shot) { // Shot from the base of the Speaker.
 			b_Shot = true;
 			new ShootGeneric(s_Shooter, s_Intake, 0.60, s_LED).schedule();
 		}
@@ -179,7 +184,7 @@ public class RobotContainer {
 		}
 
 		// Shoot for the Amp
-		if (xb_Operator.getRawAxis(ctrl_ShooterAmp) > 0.9 && !b_Shot) {
+		if (xb_Operator.getRawAxis(ctrl_ShooterAmp) > 0.9 && !b_Shot) {  // Shot for the Amp
 			b_Shot = true;
 			new ShootGeneric(s_Shooter, s_Intake, 0.13, s_LED).schedule();
 		}
@@ -189,12 +194,18 @@ public class RobotContainer {
 
 		// Vision Alignment
 		if (xb_Driver.getRawButton(ctrl_VisionAlign)) {
-			com_SwerveTeleop.setAutomatic(true);
-			double calculated = Math.min(Math.max(-(LimelightHelpers.getTX("")-4.3)*0.05,-1),1);
-			com_SwerveTeleop.setRotate(calculated);
+			if (LimelightHelpers.getFiducialID("") != -1) { // Found the AprilTag
+				com_SwerveTeleop.setAutomatic(true);
+				double calculated = Math.min(Math.max(-(LimelightHelpers.getTX("")-4.3)*0.05,-1),1);
+				com_SwerveTeleop.setRotate(calculated);
+			}
+			else { // Failed to find the AprilTag!
+				s_LED.SetColor(Color.Red);
+			}
 		}
-		else {
+		else if (com_SwerveTeleop.getAutomatic()) {
 			com_SwerveTeleop.setAutomatic(false);
+			s_LED.SetColor(s_Intake.intakeHasNote() ? Color.Green : Color.Yellow);
 		}
 	}
 

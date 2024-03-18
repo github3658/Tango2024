@@ -124,6 +124,10 @@ public class SwerveTeleop extends Command {
         b_Automatic = auto;
     }
 
+    public boolean getAutomatic() {
+        return b_Automatic;
+    }
+
     @Override
     public boolean isFinished() {
         return false;
