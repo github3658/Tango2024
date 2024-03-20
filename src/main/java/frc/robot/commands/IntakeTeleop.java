@@ -69,16 +69,27 @@ public class IntakeTeleop extends Command {
 
             // A - Force Intake
             if (xb_Operator.getRawButtonPressed(ctrl_Intake)) {
-                s_Intake.setIntake(IntakeState.Intake);
+                if (s_Intake.getIntakeState() == IntakeState.Intake) {
+                    s_Intake.setIntake(IntakeState.None);
+                }
+                else {
+                    s_Intake.setIntake(IntakeState.Intake);
+                }
             }
             // B - Force Eject
             if (xb_Operator.getRawButtonPressed(ctrl_Eject)) {
-                s_Intake.setIntake(IntakeState.FastEject);
+                if (s_Intake.getIntakeState() == IntakeState.FastEject) {
+                    s_Intake.setIntake(IntakeState.None);
+                }
+                else {
+                    s_Intake.setIntake(IntakeState.FastEject);
+                }
             }
-            // Y - Force Stop
-            if (xb_Operator.getRawButtonPressed(ctrl_Stop)) {
-                s_Intake.setIntake(IntakeState.None);
-            }
+            // REMOVED - CONFLICTS WITH STAGE SHOT
+            // // Y - Force Stop
+            // if (xb_Operator.getRawButtonPressed(ctrl_Stop)) {
+            //     s_Intake.setIntake(IntakeState.None);
+            // }
         //}
     }
 

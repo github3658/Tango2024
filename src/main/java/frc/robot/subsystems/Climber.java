@@ -13,11 +13,10 @@ public class Climber extends SubsystemBase {
         Idle,
         Climb,
         Release,
-        TiltLeft,
-        TiltRight,
         ManualLower, // DOES NOT USE ENCODER CHECKS! USE WITH CAUTION!
     }
-    ClimbState e_ClimbState = ClimbState.Idle;
+    ClimbState e_ClimbStateLeft = ClimbState.Idle;
+    ClimbState e_ClimbStateRight = ClimbState.Idle;
 
     /* CONSTANTS (prefix: c) */
     private final int c_ClimbLeftID  = 17;
@@ -25,7 +24,7 @@ public class Climber extends SubsystemBase {
     private final double c_SetClimbSpeed   = 1.0;
     private final double c_SetReleaseSpeed = -1.0;
     private final double c_MaxEncoderValue = 0.0;
-    private final double c_MinEncoderValue = -687.0;
+    private final double c_MinEncoderValue = -676.0;
 
     /* MOTORS (prefix: m) */
     private final TalonFX m_ClimbLeft;
@@ -34,6 +33,7 @@ public class Climber extends SubsystemBase {
     /* OTHER VARIABLES */
     private double d_EncoderLeftOffset  = 0.0;
     private double d_EncoderRightOffset = 0.0;
+    private boolean b_IsResetting = false;
 
     /**
      * This is the constructor for the Climber subsystem.
@@ -55,54 +55,57 @@ public class Climber extends SubsystemBase {
      */
     @Override
     public void periodic() {
-        switch (e_ClimbState) {
+        switch (e_ClimbStateLeft) {
             case Climb:
                 if (!(getExtendLeft() > c_MaxEncoderValue)) {
                     m_ClimbLeft.set(c_SetClimbSpeed);
-                }
-                if (!(getExtendRight() > c_MaxEncoderValue)) {
-                    m_ClimbRight.set(c_SetClimbSpeed);
                 }
                 break;
             case Release:
                 if (!(getExtendLeft() < c_MinEncoderValue)) {
                     m_ClimbLeft.set(c_SetReleaseSpeed);
                 }
-                if (!(getExtendRight() > c_MinEncoderValue)) {
-                    m_ClimbRight.set(c_SetReleaseSpeed);
-                }
                 break;
-            case TiltLeft:
-                if (!(getExtendLeft() > c_MaxEncoderValue)) {
-                    m_ClimbLeft.set(c_SetClimbSpeed);
-                }
-                if (!(getExtendRight() < c_MinEncoderValue)) {
-                    m_ClimbRight.set(c_SetReleaseSpeed);
-                }
+            case ManualLower:
+                m_ClimbLeft.set(c_SetClimbSpeed);
+                b_IsResetting = true;
                 break;
-            case TiltRight:
-                if (!(getExtendLeft() < c_MinEncoderValue)) {
-                    m_ClimbLeft.set(c_SetReleaseSpeed);
-                }
+            default:
+                m_ClimbLeft.set(0.0);
+                break;
+        }
+        switch (e_ClimbStateRight) {
+            case Climb:
                 if (!(getExtendRight() > c_MaxEncoderValue)) {
                     m_ClimbRight.set(c_SetClimbSpeed);
                 }
                 break;
+            case Release:
+                if (!(getExtendRight() < c_MinEncoderValue)) {
+                    m_ClimbRight.set(c_SetReleaseSpeed);
+                }
+                break;
             case ManualLower:
-                m_ClimbLeft.set(c_SetClimbSpeed);
                 m_ClimbRight.set(c_SetClimbSpeed);
+                b_IsResetting = true;
                 break;
             default:
-                m_ClimbLeft.set(0.0);
                 m_ClimbRight.set(0.0);
                 break;
+        }
+
+        if ((e_ClimbStateLeft != ClimbState.ManualLower && e_ClimbStateRight != ClimbState.ManualLower) && b_IsResetting) {
+            d_EncoderLeftOffset += getExtendLeft();
+            d_EncoderRightOffset += getExtendRight();
+            b_IsResetting = false;
         }
 
         outputTelemetry();
     }
 
     public void stop() {
-        e_ClimbState = ClimbState.Idle;
+        e_ClimbStateLeft  = ClimbState.Idle;
+        e_ClimbStateRight = ClimbState.Idle;
     }
 
     public void outputTelemetry() {
@@ -116,11 +119,28 @@ public class Climber extends SubsystemBase {
     }
 
     /**
-     * Sets the climber's current state, determining speed of motors.
-     * @param cs
+     * Sets the climber's current state, determining speed of motors. If you want to set both climber motors individually, use setLeftState and setRightState.
+     * @param cs ClimbState value
      */
-    public void setClimbState(ClimbState cs) {
-        e_ClimbState = cs;
+    public void setState(ClimbState cs) {
+        e_ClimbStateLeft = cs;
+        e_ClimbStateRight = cs;
+    }
+
+    /**
+     * Sets the left climber motors's current state, determining its speed.
+     * @param cs ClimbState value
+     */
+    public void setLeftState(ClimbState cs) {
+        e_ClimbStateLeft = cs;
+    }
+
+    /**
+     * Sets the right climber motors's current state, determining its speed.
+     * @param cs ClimbState value
+     */
+    public void setRightState(ClimbState cs) {
+        e_ClimbStateRight = cs;
     }
 
     /**
@@ -144,7 +164,7 @@ public class Climber extends SubsystemBase {
      * @return ParentDevices. This includes TalonFX, Pigeon2, and other CTRE devices.
      */
     public ParentDevice[] requestOrchDevices() {
-        ParentDevice[] pd = {};//{m_ClimbLeft, m_ClimbRight};
+        ParentDevice[] pd = {m_ClimbLeft, m_ClimbRight};
         return pd;
     }
 
@@ -153,7 +173,7 @@ public class Climber extends SubsystemBase {
      * @return The sum of motor outputs as a double.
      */
     public double pollOrchOutput() {
-        return 0;//Math.abs(m_ClimbLeft.get()) + Math.abs(m_ClimbRight.get());
+        return Math.abs(m_ClimbLeft.get()) + Math.abs(m_ClimbRight.get());
     }
 }
   

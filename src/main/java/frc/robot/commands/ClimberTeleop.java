@@ -14,9 +14,12 @@ public class ClimberTeleop extends Command {
 
     private GenericHID xb_Driver;
 
-    private final int ctrl_Climb = XboxController.Axis.kRightTrigger.value;
-    private final int ctrl_Release = XboxController.Axis.kLeftTrigger.value;
-    private final int ctrl_ManualLower = XboxController.Button.kX.value;
+    private final int ctrl_ClimbLeft = XboxController.Axis.kLeftTrigger.value;
+    private final int ctrl_ReleaseLeft = XboxController.Button.kLeftBumper.value;
+    private final int ctrl_ClimbRight = XboxController.Axis.kRightTrigger.value;
+    private final int ctrl_ReleaseRight = XboxController.Button.kRightBumper.value;
+    private final int ctrl_ManualLowerLeft = XboxController.Button.kX.value;
+    private final int ctrl_ManualLowerRight = XboxController.Button.kY.value;
 
     /**
      * This is the constructor for the ClimberTeleop command.
@@ -42,18 +45,27 @@ public class ClimberTeleop extends Command {
      */
     @Override
     public void execute() {
-        if (xb_Driver.getRawAxis(ctrl_Climb) > 0.9) {
-            s_Climber.setClimbState(ClimbState.Climb);
+        // This converts inputs for each climbing motor into three possible states:
+        // -1   Release
+        //  0   Idle
+        //  1   Climb
+        int i_LeftState = 0 + ((xb_Driver.getRawAxis(ctrl_ClimbLeft) > 0.9) ? 1 : 0) + (xb_Driver.getRawButton(ctrl_ReleaseLeft) ? -1 : 0);
+        int i_RightState = 0 + ((xb_Driver.getRawAxis(ctrl_ClimbRight) > 0.9) ? 1 : 0) + (xb_Driver.getRawButton(ctrl_ReleaseRight) ? -1 : 0);
+        switch(i_LeftState) {
+            case  1: s_Climber.setLeftState(ClimbState.Climb); break;
+            case  0: s_Climber.setLeftState(ClimbState.Idle); break;
+            case -1: s_Climber.setLeftState(ClimbState.Release); break;
         }
-        else if (xb_Driver.getRawAxis(ctrl_Release) > 0.9) {
-            s_Climber.setClimbState(ClimbState.Release);
+        switch(i_RightState) {
+            case  1: s_Climber.setRightState(ClimbState.Climb); break;
+            case  0: s_Climber.setRightState(ClimbState.Idle); break;
+            case -1: s_Climber.setRightState(ClimbState.Release); break;
         }
-        else {
-            s_Climber.setClimbState(ClimbState.Idle);
+        if (xb_Driver.getRawButton(ctrl_ManualLowerLeft)) {
+            s_Climber.setLeftState(ClimbState.ManualLower);
         }
-        if(xb_Driver.getRawButton(ctrl_ManualLower))
-        {
-            s_Climber.setClimbState(ClimbState.ManualLower);
+        if (xb_Driver.getRawButton(ctrl_ManualLowerRight)) {
+            s_Climber.setRightState(ClimbState.ManualLower);
         }
     }
 
