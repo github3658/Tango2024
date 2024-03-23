@@ -15,12 +15,15 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
+
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import java.util.function.Supplier;
@@ -63,13 +66,19 @@ public class Swerve extends SwerveDrivetrain implements Subsystem {
             this::getCurrentSpeeds,
             this::driveRobotRelative,
             new HolonomicPathFollowerConfig(
-                new PIDConstants(0, 0, 0),
-                new PIDConstants(0, 0, 0),
-                3.0,
+                new PIDConstants(0.3, 0, 0),
+                new PIDConstants(0.3, 0, 0.02),
+                1.0,
                 .350,
                 new ReplanningConfig()
             ),
-            () -> {return true;},
+            () -> {
+                var alliance = DriverStation.getAlliance();
+                if (alliance.isPresent()) {
+                    return alliance.get() == DriverStation.Alliance.Red;
+                }
+                return false;
+            },
             this
         );
     }
@@ -95,8 +104,13 @@ public class Swerve extends SwerveDrivetrain implements Subsystem {
 
     // Return current robot pose as Pose2d
     private Pose2d getPose() {
-        // AAAAGH THE POSE I'M READING IS BAD SO DO CRAZY MATH TO FIX IT!!!
-        return new Pose2d(getState().Pose.getTranslation(),Rotation2d.fromDegrees(getPigeon2().getYaw().getValue()+90));
+        //return m_odometry.getEstimatedPosition();
+
+        Translation2d t_Translation = getState().Pose.getTranslation();
+        return new Pose2d(new Translation2d(t_Translation.getX(),-t_Translation.getY()),Rotation2d.fromDegrees(getPigeon2().getAngle()+90));//Rotation2d.fromDegrees(getPigeon2().getYaw().getValue()+90));
+        
+        //return new Pose2d(getState().Pose.getTranslation(),Rotation2d.fromDegrees(getPigeon2().getAngle()));
+       
         //return getState().Pose;
     }
 

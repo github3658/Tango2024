@@ -11,7 +11,9 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.LED.Color;
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class Robot extends TimedRobot {
 
@@ -39,10 +41,14 @@ public class Robot extends TimedRobot {
     public void disabledPeriodic() {}
 
     @Override
-    public void disabledExit() {}
+    public void disabledExit() {
+        String msg = NetworkTableInstance.getDefault().getTable("FMSInfo").getEntry("GameSpecificMessage").getString("");
+        System.out.println("The game message is "+msg);
+    }
 
     @Override
     public void autonomousInit() {
+        m_robotContainer.s_LED.SetColor(m_robotContainer.s_Intake.intakeHasNote() ? Color.Green : Color.Yellow);
         m_robotContainer.autonomousInit();
     }
 
@@ -57,6 +63,7 @@ public class Robot extends TimedRobot {
         if (m_autonomousCommand != null) {
             m_autonomousCommand.cancel();
         }
+        m_robotContainer.s_LED.SetColor(m_robotContainer.s_Intake.intakeHasNote() ? Color.Green : Color.Yellow);
     }
 
     @Override

@@ -6,15 +6,9 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "ShootSpeaker"
-          }
-        },
-        {
           "type": "path",
           "data": {
-            "pathName": "Center to Taxi - Left of Stage"
+            "pathName": "PathPlanner Sanity Test"
           }
         }
       ]

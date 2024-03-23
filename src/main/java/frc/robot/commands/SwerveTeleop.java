@@ -17,7 +17,7 @@ public class SwerveTeleop extends Command {
     private final double c_MaxSwerveSpeed = TunerConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
   	private final double c_MaxSwerveAngularRate = 3.0 * Math.PI; // 3/4 of a rotation per second max angular velocity
     private final double c_SwerveRampDeadzone = 0.05;
-    private final double c_AccelTime = 50.0;
+    private final double c_AccelTime = 25.0;
     private double d_SwerveRamp = 0.0;
     private boolean b_Automatic = false;
     private double d_AutoRotate = 0.0;
@@ -88,9 +88,13 @@ public class SwerveTeleop extends Command {
         }
 
         if (xb_Driver.getRawButton(ctrl_Slow)) {
-            forward *= 0.1;
-            strafe *= 0.1;
-            rotate *= 0.1;
+            forward *= 0.35;
+            strafe *= 0.35;
+            rotate *= 0.35;
+        }
+        else {
+            //forward *= 0.75;
+            //strafe *= 0.75;
         }
 
         if (Math.abs(forward) > c_SwerveRampDeadzone || Math.abs(strafe) > c_SwerveRampDeadzone || Math.abs(rotate) > c_SwerveRampDeadzone) {

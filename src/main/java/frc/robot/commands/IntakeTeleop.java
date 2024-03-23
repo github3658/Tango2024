@@ -18,7 +18,7 @@ public class IntakeTeleop extends Command {
     //private final int ctrl_IntakeMain = XboxController.Button.kLeftBumper.value;
     private final int ctrl_Intake = XboxController.Button.kA.value;
     private final int ctrl_Eject = XboxController.Button.kB.value;
-    private final int ctrl_Stop = XboxController.Button.kY.value;
+    //private final int ctrl_Stop = XboxController.Button.kY.value;
 
     /**
      * This is the constructor for the IntakeTeleop command.

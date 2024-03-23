@@ -170,7 +170,7 @@ public class Intake extends SubsystemBase {
             case Ground:
                 return 0.59;
             case StageShot:
-                return 0.065;
+                return 0.0625; // 0.065
             case Amp:
                 return 0.37;
             case Stow:

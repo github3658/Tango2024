@@ -10,20 +10,26 @@ import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.hal.simulation.DriverStationDataJNI;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.generated.TunerConstants;
-//import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-//import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-//import com.pathplanner.lib.auto.AutoBuilder;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-//import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathConstraints;
+
 import frc.robot.subsystems.LED.Color;
 import frc.robot.subsystems.LED.Pattern;
 import frc.robot.subsystems.*;
-//import frc.robot.subsystems.Intake.PivotTarget;
 import frc.robot.commands.*;
+import frc.robot.Telemetry;
 import frc.robot.LimelightHelpers;
 
 //TODO: For the limelight, set the RIO static ip configuration: (IP 10.36.58.2, MASK 255.255.255.0, GATEWAY 10.36.58.1)
@@ -31,12 +37,20 @@ import frc.robot.LimelightHelpers;
 
 public class RobotContainer {
 
+	/* PATHPLANNER CONSTANTS (prefix: c) */
+	private final PathConstraints c_PathContstraints = new PathConstraints(2.0, 1.0, 540.0, 720.0);
+	private final Pose2d c_SpeakerRightOffset = new Pose2d(new Translation2d(-1.277, -3.043), Rotation2d.fromDegrees(-60.249));
+	private final Pose2d c_SpeakerLeftOffset = new Pose2d(new Translation2d(2.008, 2.461), Rotation2d.fromDegrees(64.938));
+	private final Pose2d c_Note1Pickup = new Pose2d(new Translation2d(1.5,3.5), Rotation2d.fromDegrees(0.0));
+	private final Pose2d c_Note2Pickup = new Pose2d(new Translation2d(1.5,0.0), Rotation2d.fromDegrees(0.0));
+	private final Pose2d c_Note3Pickup = new Pose2d(new Translation2d(1.5,-5.0), Rotation2d.fromDegrees(0.0));
+
 	/* SUBSYSTEM DEFINITIONS (prefix: s) */
-	private final Swerve   s_Swerve   = TunerConstants.DriveTrain;
-	private final LED 	   s_LED      = new LED();
-	private final Shooter  s_Shooter  = new Shooter(s_LED);
-	private final Intake   s_Intake   = new Intake(s_LED);
-	private final Climber  s_Climber  = new Climber(s_LED);
+	public final Swerve   s_Swerve   = TunerConstants.DriveTrain;
+	public final LED 	  s_LED      = new LED();
+	public final Shooter  s_Shooter  = new Shooter(s_LED);
+	public final Intake   s_Intake   = new Intake(s_LED);
+	public final Climber  s_Climber  = new Climber(s_LED);
 
 	/* INPUT DEVICES (prefix: xb) */
 	private final GenericHID xb_Driver   = new GenericHID(0);
@@ -54,7 +68,7 @@ public class RobotContainer {
 	private boolean b_Shot     = false;
 	private boolean b_PlaySong = true;
 	//private SendableChooser<Command> m_AutoChooser;
-  	//private final Telemetry logger = new Telemetry(c_MaxSwerveSpeed); This telemetry is a little excessive at the moment, I think it's better to have just the important info in SmartDashboard.
+  	private final Telemetry logger = new Telemetry();
 
 	/* COMMAND DEFINITIONS (prefix: com) */
 	private final SwerveTeleop com_SwerveTeleop = new SwerveTeleop(s_Swerve, xb_Driver);
@@ -124,8 +138,10 @@ public class RobotContainer {
 	 * This should be fixed before competition.
 	 */
 	public void autonomousInit() {
-		// TODO: PathPlanner Autonomous solution
-		SequentialCommandGroup auto = new SequentialCommandGroup(new ShootGeneric(s_Shooter, s_Intake, 0.6, s_LED), new DriveForwardWorkaround(s_Swerve));
+		// TODO: PathPlanner Autonomous solution.
+		//SequentialCommandGroup auto = new SequentialCommandGroup(new ShootGeneric(s_Shooter, s_Intake, 0.6, s_LED), new DriveForwardWorkaround(s_Swerve));
+		PathPlannerAuto auto = new PathPlannerAuto("!TEST AUTO");
+		//AutoBuilder.pathfindToPose(c_Note2Pickup, c_PathContstraints).schedule();
 		auto.schedule();
 	}
 
@@ -135,6 +151,8 @@ public class RobotContainer {
 	 * This includes, but is not limited to: shooting for the speaker/amp and playing music.
 	 */
 	public void teleopPeriodic() {
+		logger.telemeterize(s_Swerve.getState());
+
 		// Song Selection
 		if (!b_PlaySong && xb_Driver.getRawButton(ctrl_SongSelect)) {
 			switch (xb_Driver.getPOV()) {

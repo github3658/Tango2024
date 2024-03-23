@@ -47,7 +47,7 @@ public class LED extends SubsystemBase {
     //private final int c_LEDCount = 61;
 
     /* COLORS (prefix: color) */
-    private final int[] color_Yellow = {255, 255, 0};
+    private final int[] color_Yellow = {255, 128, 0};
     private final int[] color_Green = {0, 255, 0};
     private final int[] color_Blue = {0, 0, 255};
     private final int[] color_Orange = {255, 128, 0};
