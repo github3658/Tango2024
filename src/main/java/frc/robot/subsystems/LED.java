@@ -38,13 +38,16 @@ public class LED extends SubsystemBase {
     public enum Pattern {
         Solid,
         Strobe,
-        Rainbow
+        Rainbow,
+        Line,
+        Alternate,
+        Dot
     }
     private Pattern e_PatternTarget;
 
     /* CONSTANTS (prefix: c) */
     private final int c_CANDleID = 11;
-    //private final int c_LEDCount = 61;
+    private final int c_LEDCount = 68;
 
     /* COLORS (prefix: color) */
     private final int[] color_Yellow = {255, 128, 0};
@@ -88,18 +91,78 @@ public class LED extends SubsystemBase {
                 i_ColorOffset++;
             }
         }
-        else {
+        else if (e_PatternTarget == Pattern.Solid) {
             i_ColorOffset = 0;
         }
 
         if (!b_Raw) {
             i_CurrentColor = ColorToIntArray(Color.values()[(i_CurrentColorIndex+i_ColorOffset)%Color.values().length]);
         }
-        m_CANdle.setLEDs(
-            Math.round(i_CurrentColor[0]*f_Brightness),
-            Math.round(i_CurrentColor[1]*f_Brightness),
-            Math.round(i_CurrentColor[2]*f_Brightness)
-        );
+        if (e_PatternTarget == Pattern.Line) {
+            if (i_Timer % c_LEDCount == c_LEDCount-1) {
+                i_ColorOffset++;
+            } 
+            m_CANdle.setLEDs(
+                Math.round(i_CurrentColor[0]*f_Brightness),
+                Math.round(i_CurrentColor[1]*f_Brightness),
+                Math.round(i_CurrentColor[2]*f_Brightness),
+                255,
+                i_Timer % c_LEDCount,
+                1
+            );
+        }
+        else if (e_PatternTarget == Pattern.Alternate) {
+            int offset = 0;
+            if (i_Timer % 50 == 25) {
+                offset=1;
+            }
+            if (i_Timer % 250 == 0) {
+                i_ColorOffset++;
+            }
+            if (i_Timer % 50 == 0 || i_Timer % 50 == 25) {
+                for (int i = 0; i < c_LEDCount; i++) {
+                    m_CANdle.setLEDs(
+                        i_CurrentColor[0]*((i+offset)%2),
+                        i_CurrentColor[1]*((i+offset)%2),
+                        i_CurrentColor[2]*((i+offset)%2),
+                        255,
+                        i,
+                        1
+                    );
+                }
+            }
+        }
+        else if (e_PatternTarget == Pattern.Dot) {
+            if (i_Timer % 29 == 28) {
+                i_ColorOffset++;
+            }
+            int start = i_Timer % 29;
+            if (i_Timer % (58) >= 29) {
+                start = 29 - (i_Timer%29);
+            }
+            int r = Math.round(i_CurrentColor[0]);
+            int g = Math.round(i_CurrentColor[1]);
+            int b = Math.round(i_CurrentColor[2]);
+
+            m_CANdle.setLEDs(0,0,0,255,start+8-1,1);
+            m_CANdle.setLEDs(r,g,b,255,start+8,1);
+            m_CANdle.setLEDs(0,0,0,255,start+8+1,1);
+            
+            m_CANdle.setLEDs(0,0,0,255,start+8+29-1,1);
+            m_CANdle.setLEDs(r,g,b,255,start+8+29,1);
+            m_CANdle.setLEDs(0,0,0,255,start+8+29+1,1);
+
+            m_CANdle.setLEDs(0,0,0,255,start+8+58-1,1);
+            m_CANdle.setLEDs(r,g,b,255,start+8+58,1);
+            m_CANdle.setLEDs(0,0,0,255,start+8+58+1,1);
+        }
+        else {
+            m_CANdle.setLEDs(
+                Math.round(i_CurrentColor[0]*f_Brightness),
+                Math.round(i_CurrentColor[1]*f_Brightness),
+                Math.round(i_CurrentColor[2]*f_Brightness)
+            );
+        }
 
         i_Timer ++;
     }

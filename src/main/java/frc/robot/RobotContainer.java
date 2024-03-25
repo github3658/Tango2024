@@ -10,10 +10,12 @@ import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.hal.simulation.DriverStationDataJNI;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -28,6 +30,7 @@ import com.pathplanner.lib.path.PathConstraints;
 import frc.robot.subsystems.LED.Color;
 import frc.robot.subsystems.LED.Pattern;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.Intake.IntakeState;
 import frc.robot.commands.*;
 import frc.robot.Telemetry;
 import frc.robot.LimelightHelpers;
@@ -36,14 +39,6 @@ import frc.robot.LimelightHelpers;
 //TODO: For the limelight, set the Driver Station static ip configuration: (IP 10.36.58.5, MASK 255.0.0.0, GATEWAY 10.36.58.1)
 
 public class RobotContainer {
-
-	/* PATHPLANNER CONSTANTS (prefix: c) */
-	private final PathConstraints c_PathContstraints = new PathConstraints(2.0, 1.0, 540.0, 720.0);
-	private final Pose2d c_SpeakerRightOffset = new Pose2d(new Translation2d(-1.277, -3.043), Rotation2d.fromDegrees(-60.249));
-	private final Pose2d c_SpeakerLeftOffset = new Pose2d(new Translation2d(2.008, 2.461), Rotation2d.fromDegrees(64.938));
-	private final Pose2d c_Note1Pickup = new Pose2d(new Translation2d(1.5,3.5), Rotation2d.fromDegrees(0.0));
-	private final Pose2d c_Note2Pickup = new Pose2d(new Translation2d(1.5,0.0), Rotation2d.fromDegrees(0.0));
-	private final Pose2d c_Note3Pickup = new Pose2d(new Translation2d(1.5,-5.0), Rotation2d.fromDegrees(0.0));
 
 	/* SUBSYSTEM DEFINITIONS (prefix: s) */
 	public final Swerve   s_Swerve   = TunerConstants.DriveTrain;
@@ -121,7 +116,7 @@ public class RobotContainer {
 		createNamedCommands();
 
 		s_LED.SetColor(Color.White);
-		s_LED.SetPattern(Pattern.Solid);
+		s_LED.SetPattern(Pattern.Line);
   	}
 
 	/**
@@ -138,11 +133,51 @@ public class RobotContainer {
 	 * This should be fixed before competition.
 	 */
 	public void autonomousInit() {
-		// TODO: PathPlanner Autonomous solution.
-		//SequentialCommandGroup auto = new SequentialCommandGroup(new ShootGeneric(s_Shooter, s_Intake, 0.6, s_LED), new DriveForwardWorkaround(s_Swerve));
-		PathPlannerAuto auto = new PathPlannerAuto("!TEST AUTO");
-		//AutoBuilder.pathfindToPose(c_Note2Pickup, c_PathContstraints).schedule();
-		auto.schedule();
+		String msg = NetworkTableInstance.getDefault().getTable("FMSInfo").getEntry("GameSpecificMessage").getString("");
+		// 3 NOTE AUTON
+		if (msg.contains("3")) {
+			new SequentialCommandGroup(
+				new ZeroBotPose(s_Swerve),
+				new ShootGeneric(s_Shooter, s_Intake, 0.6, s_LED),
+				new IntakeGroundInstant(s_Intake),
+				new GoToPose(s_Swerve, GoToPose.Note2Pickup),
+				new SweepingIntake(s_Swerve, s_Intake),
+				new GoToPose(s_Swerve, GoToPose.Origin),
+				new ShootGeneric(s_Shooter, s_Intake, 0.6, s_LED),
+				new ZeroBotPose(s_Swerve),
+				new IntakeGroundInstant(s_Intake),
+				new GoToPose(s_Swerve, GoToPose.Note1Pickup),
+				new SweepingIntake(s_Swerve, s_Intake),
+				new GoToPose(s_Swerve, GoToPose.Origin),
+				new ShootGeneric(s_Shooter, s_Intake, 0.6, s_LED),
+				new ZeroBotPose(s_Swerve),
+				new GoToPose(s_Swerve, GoToPose.TaxiLeftWall)
+			).schedule();
+		}
+
+		// 2 NOTE
+		if (msg.contains("2")) {
+			new SequentialCommandGroup(
+				new ZeroBotPose(s_Swerve),
+				new ShootGeneric(s_Shooter, s_Intake, 0.6, s_LED),
+				new IntakeGroundInstant(s_Intake),
+				new GoToPose(s_Swerve, GoToPose.Note2Pickup),
+				new SweepingIntake(s_Swerve, s_Intake),
+				new GoToPose(s_Swerve, GoToPose.Origin),
+				new ShootGeneric(s_Shooter, s_Intake, 0.6, s_LED),
+				new ZeroBotPose(s_Swerve),
+				new GoToPose(s_Swerve, GoToPose.TaxiLeftWallAvoidLeft)
+				//new GoToPose(s_Swerve, GoToPose.TaxiLeftWall)
+			).schedule();
+		}
+
+		// RIGHT SIDE 1 NOTE
+		if (msg.contains("1")) {
+			new SequentialCommandGroup(
+				new ShootGeneric(s_Shooter, s_Intake, 0.6, s_LED),
+				new DriveForwardWorkaround(s_Swerve)
+			).schedule();
+		}
 	}
 
 	/**
@@ -160,13 +195,13 @@ public class RobotContainer {
 					ScheduleSong("bohemianrhapsody.chrp");
 					break;
 				case 45: // UP RIGHT
-					ScheduleSong("creep.chrp");
+					ScheduleSong("thunderstruck.chrp");
 					break;
 				case 90: // RIGHT
 					ScheduleSong("rickroll.chrp");
 					break;
 				case 135: // DOWN RIGHT
-					ScheduleSong("snitch.chrp");
+					ScheduleSong("beethoven.chrp");
 					break;
 				case 180: // DOWN
 					ScheduleSong("starwars.chrp");
@@ -234,13 +269,5 @@ public class RobotContainer {
 	private void ScheduleSong(String song) {
 		b_PlaySong = true;
 		new PlaySong(o_Orchestra, s_Swerve, s_Intake, s_Shooter, s_Climber, song, xb_Driver, s_LED).schedule();
-	}
-
-	/**
-	 * This function runs once when the robot is disabled.
-	 * It sets the color of the LED array to white as a visual cue to others that the robot is disabled.
-	 */
-	public void disabledInit() {
-		s_LED.SetColor(Color.White);
 	}
 }

@@ -41,8 +41,8 @@ public class ShootGeneric extends Command {
      */
     @Override
     public void initialize() {
-        i_ShooterWarmupDelay = 50;
-        i_ShutdownDelay = 50;
+        i_ShooterWarmupDelay = 20;
+        i_ShutdownDelay = 20;
         b_SeenNote = false;
         s_LED.SetColor(Color.Blue);
         s_LED.SetPattern(Pattern.Strobe);

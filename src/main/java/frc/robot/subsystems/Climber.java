@@ -24,7 +24,8 @@ public class Climber extends SubsystemBase {
     private final double c_SetClimbSpeed   = 1.0;
     private final double c_SetReleaseSpeed = -1.0;
     private final double c_MaxEncoderValue = 0.0;
-    private final double c_MinEncoderValue = -676.0;
+    private final double c_MinEncoderValueLeft = -620.0;
+    private final double c_MinEncoderValueRight = -455.0;
 
     /* MOTORS (prefix: m) */
     private final TalonFX m_ClimbLeft;
@@ -60,10 +61,16 @@ public class Climber extends SubsystemBase {
                 if (!(getExtendLeft() > c_MaxEncoderValue)) {
                     m_ClimbLeft.set(c_SetClimbSpeed);
                 }
+                else {
+                    e_ClimbStateLeft = ClimbState.Idle;
+                }
                 break;
             case Release:
-                if (!(getExtendLeft() < c_MinEncoderValue)) {
+                if (!(getExtendLeft() < c_MinEncoderValueLeft)) {
                     m_ClimbLeft.set(c_SetReleaseSpeed);
+                }
+                else {
+                    e_ClimbStateLeft = ClimbState.Idle;
                 }
                 break;
             case ManualLower:
@@ -79,10 +86,16 @@ public class Climber extends SubsystemBase {
                 if (!(getExtendRight() > c_MaxEncoderValue)) {
                     m_ClimbRight.set(c_SetClimbSpeed);
                 }
+                else {
+                    e_ClimbStateRight = ClimbState.Idle;
+                }
                 break;
             case Release:
-                if (!(getExtendRight() < c_MinEncoderValue)) {
+                if (!(getExtendRight() < c_MinEncoderValueRight)) {
                     m_ClimbRight.set(c_SetReleaseSpeed);
+                }
+                else {
+                    e_ClimbStateRight = ClimbState.Idle;
                 }
                 break;
             case ManualLower:
