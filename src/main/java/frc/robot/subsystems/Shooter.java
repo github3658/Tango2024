@@ -116,6 +116,6 @@ public class Shooter extends SubsystemBase {
 	}
 
 	public double pollOrchOutput() {
-        return Math.abs(m_ShootLeft.get()) + Math.abs(m_ShootRight.get()) + Math.abs(m_ShootPivot.get()) + Math.abs(m_ShootExtend.get());
+        return Math.abs(m_ShootLeft.getRotorVelocity().getValueAsDouble()) + Math.abs(m_ShootRight.getRotorVelocity().getValueAsDouble()) + Math.abs(m_ShootPivot.getVelocity().getValueAsDouble()) + Math.abs(m_ShootExtend.getVelocity().getValueAsDouble());
     }
 }

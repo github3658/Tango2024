@@ -186,7 +186,7 @@ public class Climber extends SubsystemBase {
      * @return The sum of motor outputs as a double.
      */
     public double pollOrchOutput() {
-        return Math.abs(m_ClimbLeft.get()) + Math.abs(m_ClimbRight.get());
+        return Math.abs(m_ClimbLeft.getRotorVelocity().getValueAsDouble()) + Math.abs(m_ClimbRight.getRotorVelocity().getValueAsDouble());
     }
 }
   

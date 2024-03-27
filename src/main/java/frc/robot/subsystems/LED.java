@@ -81,9 +81,12 @@ public class LED extends SubsystemBase {
     @Override
     public void periodic() {
         if (e_PatternTarget == Pattern.Strobe) {
-            if (i_Timer % 12 == 0) {
+            if (i_Timer % 25 == 0) {
                 // Switch from one color to the other
-                i_ColorOffset = (1 - i_ColorOffset);
+                i_ColorOffset = 1;
+            }
+            else if (i_Timer % 25 == 12) {
+                i_ColorOffset = 0;
             }
         }
         else if (e_PatternTarget == Pattern.Rainbow) {
@@ -137,7 +140,7 @@ public class LED extends SubsystemBase {
                 i_ColorOffset++;
             }
             int start = i_Timer % 29;
-            if (i_Timer % (58) >= 29) {
+            if (i_Timer % 58 > 29) {
                 start = 29 - (i_Timer%29);
             }
             int r = Math.round(i_CurrentColor[0]);

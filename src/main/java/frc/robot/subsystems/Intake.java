@@ -120,6 +120,9 @@ public class Intake extends SubsystemBase {
         if (e_PivotTarget != PivotTarget.None) {
             double d_CurrentPivot = getPivotAngle();
             d_IntakePivotSpeed = Math.max(Math.min(((d_CurrentPivot - d_PivotAngle) * 1.5),0.40),-0.40);
+            if (e_PivotTarget == PivotTarget.StageShot) { // This is an exception. Being on time is mucho important
+                d_IntakePivotSpeed *= 4;
+            }
         }
         m_IntakePivot.set(d_IntakePivotSpeed);
 
@@ -170,7 +173,7 @@ public class Intake extends SubsystemBase {
             case Ground:
                 return 0.59;
             case StageShot:
-                return 0.0625; // 0.065
+                return 0.04; // 0.065
             case Amp:
                 return 0.37;
             case Stow:
@@ -307,6 +310,6 @@ public class Intake extends SubsystemBase {
      * @return The sum of motor outputs as a double.
      */
     public double pollOrchOutput() {
-        return Math.abs(m_IntakeNote.get()) + Math.abs(m_IntakePivot.get());
+        return Math.abs(m_IntakeNote.getRotorVelocity().getValueAsDouble()) + Math.abs(m_IntakePivot.getRotorVelocity().getValueAsDouble());
     }
 }

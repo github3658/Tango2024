@@ -20,6 +20,7 @@ public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
 
     private RobotContainer m_robotContainer;
+    private int i_DisabledTimer = 0;
 
     @Override
     public void robotInit() {
@@ -38,7 +39,27 @@ public class Robot extends TimedRobot {
     }
 
     @Override
-    public void disabledPeriodic() {}
+    public void disabledPeriodic() {
+        i_DisabledTimer++;
+        if (i_DisabledTimer % 500 == 0) {
+            int random = (int) (Math.round(Math.random()*3));
+            switch (random) {
+                case 0:
+                    m_robotContainer.s_LED.SetColor(Color.Red);
+                    m_robotContainer.s_LED.SetPattern(Pattern.Strobe);
+                    break;
+                case 1:
+                    m_robotContainer.s_LED.SetPattern(Pattern.Alternate);
+                    break;
+                case 2:
+                    m_robotContainer.s_LED.SetPattern(Pattern.Line);
+                    break;
+                case 3:
+                    m_robotContainer.s_LED.SetPattern(Pattern.Dot);
+                    break;
+            }
+        }
+    }
 
     @Override
     public void disabledExit() {

@@ -163,13 +163,13 @@ public class Swerve extends SwerveDrivetrain implements Subsystem {
     }
 
     public double pollOrchOutput() {
-        return Math.abs(this.getModule(0).getDriveMotor().get())
-        + Math.abs(this.getModule(0).getSteerMotor().get())
-        + Math.abs(this.getModule(1).getDriveMotor().get())
-        + Math.abs(this.getModule(1).getSteerMotor().get())
-        + Math.abs(this.getModule(2).getDriveMotor().get())
-        + Math.abs(this.getModule(2).getSteerMotor().get())
-        + Math.abs(this.getModule(3).getDriveMotor().get())
-        + Math.abs(this.getModule(3).getSteerMotor().get());
+        return Math.abs(this.getModule(0).getDriveMotor().getRotorVelocity().getValueAsDouble())
+        + Math.abs(this.getModule(0).getSteerMotor().getRotorVelocity().getValueAsDouble())
+        + Math.abs(this.getModule(1).getDriveMotor().getRotorVelocity().getValueAsDouble())
+        + Math.abs(this.getModule(1).getSteerMotor().getRotorVelocity().getValueAsDouble())
+        + Math.abs(this.getModule(2).getDriveMotor().getRotorVelocity().getValueAsDouble())
+        + Math.abs(this.getModule(2).getSteerMotor().getRotorVelocity().getValueAsDouble())
+        + Math.abs(this.getModule(3).getDriveMotor().getRotorVelocity().getValueAsDouble())
+        + Math.abs(this.getModule(3).getSteerMotor().getRotorVelocity().getValueAsDouble());
     }
 }

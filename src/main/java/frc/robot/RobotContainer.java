@@ -156,7 +156,7 @@ public class RobotContainer {
 		}
 
 		// 2 NOTE
-		if (msg.contains("2")) {
+		else if (msg.contains("2")) {
 			new SequentialCommandGroup(
 				new ZeroBotPose(s_Swerve),
 				new ShootGeneric(s_Shooter, s_Intake, 0.6, s_LED),
@@ -172,7 +172,7 @@ public class RobotContainer {
 		}
 
 		// RIGHT SIDE 1 NOTE
-		if (msg.contains("1")) {
+		else if (msg.contains("1")) {
 			new SequentialCommandGroup(
 				new ShootGeneric(s_Shooter, s_Intake, 0.6, s_LED),
 				new DriveForwardWorkaround(s_Swerve)
@@ -195,7 +195,7 @@ public class RobotContainer {
 					ScheduleSong("bohemianrhapsody.chrp");
 					break;
 				case 45: // UP RIGHT
-					ScheduleSong("thunderstruck.chrp");
+					ScheduleSong("lacrimosa.chrp");
 					break;
 				case 90: // RIGHT
 					ScheduleSong("rickroll.chrp");
@@ -226,7 +226,7 @@ public class RobotContainer {
 		// Shoot for the Speaker
 		if (xb_Operator.getRawButtonPressed(ctrl_StageShot) && !b_Shot) { // Special shot from the protected zone on the Stage.
 			b_Shot = true;
-			new ShootGeneric(s_Shooter, s_Intake, 0.75, s_LED).schedule();
+			new ShootGeneric(s_Shooter, s_Intake, 0.80, s_LED).schedule();
 		}
 		else if (xb_Operator.getRawAxis(ctrl_ShooterMain) > 0.9 && !b_Shot) { // Shot from the base of the Speaker.
 			b_Shot = true;

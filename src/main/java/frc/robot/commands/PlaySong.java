@@ -25,6 +25,7 @@ public class PlaySong extends Command {
     private final String str_song;
     private final GenericHID xb_Operator;
     private int i_Delay;
+    private float f_RealOutput;
 
     private final int ctrl_SongCancel = XboxController.Button.kStart.value;
 
@@ -64,6 +65,7 @@ public class PlaySong extends Command {
         o_Orchestra.loadMusic(str_song);
         o_Orchestra.play();
         i_Delay = 50;
+        f_RealOutput = 0;
         s_LED.SetPattern(Pattern.Rainbow);
     }
 
@@ -75,8 +77,12 @@ public class PlaySong extends Command {
     @Override
     public void execute() {
         i_Delay --;
-        double output = pollOrchOutput();
-        s_LED.setBrightness((float) output);
+        // double output = pollOrchOutput();
+        // if (output > f_RealOutput) {
+        //     f_RealOutput = (float) output;
+        // }
+        // s_LED.setBrightness(f_RealOutput);
+        // f_RealOutput *= 0.99;
         if (i_Delay < 0 && xb_Operator.getRawButton(ctrl_SongCancel)) {
             o_Orchestra.stop();
             System.out.println("Orchestra finished!");
@@ -84,7 +90,7 @@ public class PlaySong extends Command {
             s_LED.SetPattern(Pattern.Solid);
             s_LED.SetColor(s_Intake.intakeHasNote() ? Color.Green : Color.Yellow);
         }
-        SmartDashboard.putNumber("Orchestra - Output", output);
+        // SmartDashboard.putNumber("Orchestra - Output", f_RealOutput);
     }
 
     @Override
@@ -98,6 +104,6 @@ public class PlaySong extends Command {
      * @return The combined output of each subsystem
      */
     private double pollOrchOutput() {
-        return (s_Climber.pollOrchOutput() + s_Intake.pollOrchOutput() + s_Shooter.pollOrchOutput() + s_Swerve.pollOrchOutput())*50.0;
+        return (s_Climber.pollOrchOutput() + s_Intake.pollOrchOutput() + s_Shooter.pollOrchOutput() + s_Swerve.pollOrchOutput()) * 2;
     }
 }
