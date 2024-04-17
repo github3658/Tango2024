@@ -10,30 +10,20 @@ import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.hal.simulation.DriverStationDataJNI;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.generated.TunerConstants;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.path.PathConstraints;
 
 import frc.robot.subsystems.LED.Color;
 import frc.robot.subsystems.LED.Pattern;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.Intake.IntakeState;
 import frc.robot.commands.*;
 import frc.robot.Telemetry;
-import frc.robot.LimelightHelpers;
+//import frc.robot.LimelightHelpers;
 
 //TODO: For the limelight, set the RIO static ip configuration: (IP 10.36.58.2, MASK 255.255.255.0, GATEWAY 10.36.58.1)
 //TODO: For the limelight, set the Driver Station static ip configuration: (IP 10.36.58.5, MASK 255.0.0.0, GATEWAY 10.36.58.1)
@@ -129,11 +119,9 @@ public class RobotContainer {
 
 	/**
 	 * This function runs when autonomous mode begins.
-	 * Currently, it builds a default autonomous.
-	 * This should be fixed before competition.
 	 */
 	public void autonomousInit() {
-		String msg = NetworkTableInstance.getDefault().getTable("FMSInfo").getEntry("GameSpecificMessage").getString("");
+		String msg = SmartDashboard.getString("DB/String 0","3");
 		// 3 NOTE AUTON
 		if (msg.contains("3")) {
 			new SequentialCommandGroup(
@@ -246,20 +234,20 @@ public class RobotContainer {
 		}
 
 		// Vision Alignment
-		if (xb_Driver.getRawButton(ctrl_VisionAlign)) {
-			if (LimelightHelpers.getFiducialID("") != -1) { // Found the AprilTag
-				com_SwerveTeleop.setAutomatic(true);
-				double calculated = Math.min(Math.max(-(LimelightHelpers.getTX("")-4.3)*0.05,-1),1);
-				com_SwerveTeleop.setRotate(calculated);
-			}
-			else { // Failed to find the AprilTag!
-				s_LED.SetColor(Color.Red);
-			}
-		}
-		else if (com_SwerveTeleop.getAutomatic()) {
-			com_SwerveTeleop.setAutomatic(false);
-			s_LED.SetColor(s_Intake.intakeHasNote() ? Color.Green : Color.Yellow);
-		}
+		// if (xb_Driver.getRawButton(ctrl_VisionAlign)) {
+		// 	if (LimelightHelpers.getFiducialID("") != -1) { // Found the AprilTag
+		// 		com_SwerveTeleop.setAutomatic(true);
+		// 		double calculated = Math.min(Math.max(-(LimelightHelpers.getTX("")-4.3)*0.05,-1),1);
+		// 		com_SwerveTeleop.setRotate(calculated);
+		// 	}
+		// 	else { // Failed to find the AprilTag!
+		// 		s_LED.SetColor(Color.Red);
+		// 	}
+		// }
+		// else if (com_SwerveTeleop.getAutomatic()) {
+		// 	com_SwerveTeleop.setAutomatic(false);
+		// 	s_LED.SetColor(s_Intake.intakeHasNote() ? Color.Green : Color.Yellow);
+		// }
 	}
 
 	/**

@@ -50,6 +50,7 @@ public class ShootGeneric extends Command {
             s_Intake.setPivot(PivotTarget.StageShot);
             s_Shooter.setPivot(-9.075);
         } 
+        System.out.println("Called ShootGeneric");
     }
 
     /**

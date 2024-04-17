@@ -41,7 +41,8 @@ public class LED extends SubsystemBase {
         Rainbow,
         Line,
         Alternate,
-        Dot
+        Dot,
+        FadeIn
     }
     private Pattern e_PatternTarget;
 
@@ -96,6 +97,9 @@ public class LED extends SubsystemBase {
         }
         else if (e_PatternTarget == Pattern.Solid) {
             i_ColorOffset = 0;
+        }
+        else if (e_PatternTarget == Pattern.FadeIn) {
+            f_Brightness = (float) (i_Timer)/1000;
         }
 
         if (!b_Raw) {
@@ -201,7 +205,9 @@ public class LED extends SubsystemBase {
      * @param color A Color enum value
      */
     public void SetColor(Color color) {
+        f_Brightness = 1;
         i_CurrentColorIndex = color.value;
+        i_ColorOffset = 0;
         b_Raw = false;
     }
 

@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.proto.Trajectory;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.generated.TunerConstants;
@@ -52,6 +53,10 @@ public class GoToPose extends Command {
     public void initialize() {
         d_SwerveRamp = 0.0;
         i_frames = 0;
+        System.out.println("Called GoToPose");
+        if (DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == DriverStation.Alliance.Red) {
+            p_TargetPose = new Pose2d(new Translation2d(p_TargetPose.getX(),-p_TargetPose.getY()),p_TargetPose.getRotation().times(-1));
+        }
     }
 
     @Override

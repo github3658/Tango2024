@@ -14,5 +14,6 @@ public class IntakeGroundInstant extends InstantCommand {
     @Override
     public void initialize() {
         s_Intake.setStateToGround();
+        System.out.println("Called IntakeGroundInstant");
     }
 }

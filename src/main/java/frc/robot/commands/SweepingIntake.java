@@ -29,6 +29,7 @@ public class SweepingIntake extends Command {
     public void initialize() {
         s_Intake.setStateToGround();
         failsafe = 250;
+        System.out.println("Called SweepingIntake");
     }
 
     public void execute() {

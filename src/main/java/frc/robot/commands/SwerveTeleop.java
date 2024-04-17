@@ -15,7 +15,7 @@ public class SwerveTeleop extends Command {
     private final Swerve s_Swerve;
 
     private final double c_MaxSwerveSpeed = TunerConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
-  	private final double c_MaxSwerveAngularRate = 3.0 * Math.PI; // 3/4 of a rotation per second max angular velocity
+  	private final double c_MaxSwerveAngularRate = 5.0 * Math.PI;
     private final double c_SwerveRampDeadzone = 0.05;
     private final double c_AccelTime = 25.0;
     private double d_SwerveRamp = 0.0;

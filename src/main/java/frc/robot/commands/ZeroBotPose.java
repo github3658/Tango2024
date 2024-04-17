@@ -10,6 +10,7 @@ public class ZeroBotPose extends InstantCommand {
     }
 
     public void initialize() {
-        s_Swerve.zeroHeading();
+        s_Swerve.zeroPose();
+        System.out.println("Called ZeroBotPose");
     }
 }

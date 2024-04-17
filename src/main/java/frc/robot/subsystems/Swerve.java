@@ -139,7 +139,11 @@ public class Swerve extends SwerveDrivetrain implements Subsystem {
     }
 
     public void zeroHeading() {
-        //m_odometry.resetPosition(Rotation2d.fromDegrees(getPigeon2().getAngle()), getModulePositions(), new Pose2d(getPose().getTranslation(), new Rotation2d()));
+        m_odometry.resetPosition(Rotation2d.fromDegrees(getPigeon2().getAngle()), getModulePositions(), new Pose2d(getPose().getTranslation(), new Rotation2d()));
+        //m_odometry.resetPosition(Rotation2d.fromDegrees(getPigeon2().getAngle()), getModulePositions(), new Pose2d(new Translation2d(0.0,0.0), new Rotation2d()));
+    }
+
+    public void zeroPose() {
         m_odometry.resetPosition(Rotation2d.fromDegrees(getPigeon2().getAngle()), getModulePositions(), new Pose2d(new Translation2d(0.0,0.0), new Rotation2d()));
     }
 
