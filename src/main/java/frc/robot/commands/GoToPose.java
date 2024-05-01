@@ -22,16 +22,16 @@ public class GoToPose extends Command {
 	//private static final Pose2d c_SpeakerRightOffset = new Pose2d(new Translation2d(-1.277, -3.043), Rotation2d.fromDegrees(-60.249));
 	//private static final Pose2d c_SpeakerLeftOffset = new Pose2d(new Translation2d(2.008, 2.461), Rotation2d.fromDegrees(64.938));
 	public static final Pose2d Origin = new Pose2d(new Translation2d(0.0,0.0), Rotation2d.fromDegrees(0.0));
-    public static final Pose2d Note1Pickup = new Pose2d(new Translation2d(1.5,3.5), Rotation2d.fromDegrees(0.0));
-	public static final Pose2d Note2Pickup = new Pose2d(new Translation2d(1.5,0.0-0.21), Rotation2d.fromDegrees(0.0));
-	public static final Pose2d Note3Pickup = new Pose2d(new Translation2d(1.5,-3.5-0.42), Rotation2d.fromDegrees(0.0));
+    public static final Pose2d Note1Pickup = new Pose2d(new Translation2d(1.5,3.65), Rotation2d.fromDegrees(0.0));
+	public static final Pose2d Note2Pickup = new Pose2d(new Translation2d(1.5,0.0), Rotation2d.fromDegrees(0.0));
+	public static final Pose2d Note3Pickup = new Pose2d(new Translation2d(1.5,-3.5), Rotation2d.fromDegrees(0.0));
     public static final Pose2d TaxiLeftWall = new Pose2d(new Translation2d(7.0,4.0), Rotation2d.fromDegrees(0.0));
-    public static final Pose2d TaxiLeftWallAvoidLeft = new Pose2d(new Translation2d(7.0,-0.21), Rotation2d.fromDegrees(0.0));
+    public static final Pose2d TaxiLeftWallAvoidLeft = new Pose2d(new Translation2d(7.0,0.0), Rotation2d.fromDegrees(0.0));
 
     private final double c_MaxSwerveSpeed = TunerConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
   	private final double c_MaxSwerveAngularRate = 3.0 * Math.PI; // 3/4 of a rotation per second max angular velocity
     private final double c_AccelTime = 25.0;
-    private final double c_SwerveRampDeadzone = 0.02;
+    private final double c_SwerveRampDeadzone = 0.1;
     private double d_SwerveRamp;
     private int i_frames;
     private Pose2d p_TargetPose;
@@ -89,7 +89,7 @@ public class GoToPose extends Command {
     @Override
     public boolean isFinished() {
         i_frames++;
-        return (Math.abs(forward) < c_SwerveRampDeadzone && Math.abs(strafe) < c_SwerveRampDeadzone && d_SwerveRamp < 0.9 && i_frames > 5);
+        return (Math.abs(forward) < c_SwerveRampDeadzone && Math.abs(strafe) < c_SwerveRampDeadzone && i_frames > 5);
     }
 
     @Override
@@ -100,6 +100,6 @@ public class GoToPose extends Command {
     // This is a bad function name.
     // It converts a distance to a reasonable forward/strafe speed.
     private double toReasonableValue(double dist) {
-        return Math.min(Math.max(dist/4,-0.25),0.25);
+        return Math.min(Math.max(dist/4,-0.5),0.5);
     }
 }

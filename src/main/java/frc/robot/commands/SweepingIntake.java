@@ -14,6 +14,8 @@ public class SweepingIntake extends Command {
 
     private final double c_MaxSwerveSpeed = TunerConstants.kSpeedAt12VoltsMps;
 
+    private double d_Safety;
+    private double d_Ramp;
     private int failsafe;
 
     private final SwerveRequest.FieldCentric drive_field = new SwerveRequest.FieldCentric()
@@ -29,15 +31,26 @@ public class SweepingIntake extends Command {
     public void initialize() {
         s_Intake.setStateToGround();
         failsafe = 250;
+        d_Safety = 1.0;
+        d_Ramp = 0.05;
         System.out.println("Called SweepingIntake");
     }
 
     public void execute() {
         s_Swerve.setControl(drive_field
-            .withVelocityX(0.25 * c_MaxSwerveSpeed) // Drive forward with negative Y (forward)
+            .withVelocityX(0.5 * c_MaxSwerveSpeed * d_Safety * d_Ramp) // Drive forward with negative Y (forward)
             .withVelocityY(0)
             .withRotationalRate(0)
         );
+        if (!s_Intake.intakeHasNote()) {
+            d_Ramp = Math.min(d_Ramp+0.05, 1);
+        }
+        else {
+            d_Ramp = Math.max(d_Ramp-0.05,0);
+        }
+        if (failsafe < 210) {
+            d_Safety = 0.5;
+        }
         if (failsafe < 0) {
             end(true);
         }
@@ -53,6 +66,6 @@ public class SweepingIntake extends Command {
     @Override
     public boolean isFinished() {
         failsafe--;
-        return s_Intake.intakeHasNote();
+        return d_Ramp == 0;
     }
 }
